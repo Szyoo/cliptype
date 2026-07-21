@@ -9,9 +9,9 @@ similar environments where <kbd>Ctrl/Cmd</kbd>+<kbd>V</kbd> simply doesn't work.
 
 Cross-platform: **macOS**, **Windows**, and **Linux**.
 
-> Status: early scaffold. The project layout, build, and CI are in place; the
-> core clipboard-read and keystroke-send logic is stubbed and under active
-> development. See the [Roadmap](#roadmap).
+> Status: core functionality implemented (clipboard read, keystroke sending,
+> newline/tab handling). Cross-platform verification and the resident hotkey
+> mode are in progress. See the [Roadmap](#roadmap).
 
 ## How it works
 
@@ -73,8 +73,8 @@ cargo build --release
 
 ## Roadmap
 
-- [ ] Implement clipboard text read (`clipboard::read_text`)
-- [ ] Implement keystroke sending (`typer::type_text`)
+- [x] Implement clipboard text read (`clipboard::read_text`)
+- [x] Implement keystroke sending (`typer::type_text`)
 - [ ] Verify Unicode / newline / tab handling across platforms
 - [ ] Optional resident hotkey mode (`--features hotkey`)
 - [ ] Prebuilt release binaries for macOS / Windows / Linux

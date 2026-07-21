@@ -16,20 +16,20 @@ fn main() -> Result<()> {
     // クリップボードからテキストを取得
     let text = clipboard::read_text()?;
     if text.is_empty() {
-        eprintln!("クリップボードが空、またはテキストではありません。");
+        eprintln!("The clipboard is empty or does not contain text.");
         return Ok(());
     }
 
     // ドライラン: 送信せず内容を表示するだけ
     if args.dry_run {
-        println!("--- dry-run ({} 文字) ---", text.chars().count());
+        println!("--- dry-run ({} chars) ---", text.chars().count());
         println!("{text}");
         return Ok(());
     }
 
     // ウィンドウを切り替える猶予を与える
     println!(
-        "{}ms 後に入力を開始します。対象ウィンドウをアクティブにしてください…",
+        "Typing starts in {}ms — focus the target window now…",
         args.delay
     );
     thread::sleep(Duration::from_millis(args.delay));
