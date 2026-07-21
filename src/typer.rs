@@ -7,6 +7,8 @@ use std::time::Duration;
 /// 送信時の挙動を制御する設定。
 pub struct TypeOptions {
     /// 各文字の入力間隔。
+    // TODO: type_text 実装時にこの allow を外す（現状 stub のため未読）。
+    #[allow(dead_code)]
     pub interval: Duration,
 }
 

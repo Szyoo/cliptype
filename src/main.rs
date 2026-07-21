@@ -28,7 +28,10 @@ fn main() -> Result<()> {
     }
 
     // ウィンドウを切り替える猶予を与える
-    println!("{}ms 後に入力を開始します。対象ウィンドウをアクティブにしてください…", args.delay);
+    println!(
+        "{}ms 後に入力を開始します。対象ウィンドウをアクティブにしてください…",
+        args.delay
+    );
     thread::sleep(Duration::from_millis(args.delay));
 
     // キーストローク送信
