@@ -65,7 +65,7 @@ No extra setup required.
 Requires a [Rust toolchain](https://rustup.rs/).
 
 ```sh
-git clone https://github.com/USERNAME/cliptype
+git clone https://github.com/Szyoo/cliptype
 cd cliptype
 cargo build --release
 # binary at ./target/release/cliptype
