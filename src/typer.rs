@@ -19,6 +19,7 @@ pub struct TypeOptions {
 /// アプリによっては Return/Tab として解釈されないため、
 /// 専用キーとして送信する。
 pub fn type_text(text: &str, opts: &TypeOptions) -> Result<()> {
+    ensure_permission()?;
     let text = normalize_newlines(text);
     let mut enigo = Enigo::new(&Settings::default()).map_err(|e| {
         anyhow!(
@@ -27,11 +28,16 @@ pub fn type_text(text: &str, opts: &TypeOptions) -> Result<()> {
         )
     })?;
 
-    if opts.interval.is_zero() {
+    let result = if opts.interval.is_zero() {
         type_fast(&mut enigo, &text)
     } else {
         type_per_char(&mut enigo, &text, opts.interval)
-    }
+    };
+
+    // 送信直後にプロセスが終了すると、未配送のイベントが失われて
+    // 末尾の文字が欠けることがある（実測で確認）。少し待ってから戻る。
+    thread::sleep(Duration::from_millis(120));
+    result
 }
 
 /// 最速モード: 通常文字はまとめて `text()` で送り、改行・タブだけキー送信する。
@@ -50,11 +56,15 @@ fn type_fast(enigo: &mut Enigo, text: &str) -> Result<()> {
 }
 
 /// 逐字モード: 1 文字ずつ送信し、間に interval を挟む。
+/// `Key::Unicode` は物理キーコードの模倣になるため IME に横取りされる
+/// （実測: 中国語 IME 有効時に「日本語」→「啊啊啊」）。`text()` と同じ
+/// unicode 文字列添付方式なら IME を素通りするので、1 文字ずつ `text()` で送る。
 fn type_per_char(enigo: &mut Enigo, text: &str, interval: Duration) -> Result<()> {
+    let mut buf = [0u8; 4];
     for ch in text.chars() {
         match ch {
             '\n' | '\t' => send_special(enigo, ch)?,
-            _ => enigo.key(Key::Unicode(ch), Click).map_err(input_err)?,
+            _ => enigo.text(ch.encode_utf8(&mut buf)).map_err(input_err)?,
         }
         thread::sleep(interval);
     }
@@ -85,11 +95,38 @@ fn input_err(e: enigo::InputError) -> anyhow::Error {
     anyhow!("failed to send keystrokes: {e}{}", permission_hint())
 }
 
+/// macOS: アクセシビリティ権限が無いと CGEvent は OS に静かに破棄され、
+/// enigo もエラーを返さない（0.2.1 は権限チェックを行わない）。
+/// 「何も入力されないのに正常終了する」を防ぐため、送信前に明示的に確認する。
+#[cfg(target_os = "macos")]
+pub fn ensure_permission() -> Result<()> {
+    #[link(name = "ApplicationServices", kind = "framework")]
+    extern "C" {
+        fn AXIsProcessTrusted() -> bool;
+    }
+    if unsafe { AXIsProcessTrusted() } {
+        Ok(())
+    } else {
+        anyhow::bail!(
+            "the Accessibility permission is not granted, so macOS would silently \
+             discard the keystrokes.{}",
+            permission_hint()
+        )
+    }
+}
+
+/// macOS 以外では権限チェック不要。
+#[cfg(not(target_os = "macos"))]
+pub fn ensure_permission() -> Result<()> {
+    Ok(())
+}
+
 /// macOS の場合のみ、アクセシビリティ権限の案内を付ける。
 fn permission_hint() -> &'static str {
     if cfg!(target_os = "macos") {
-        "\nhint: grant Accessibility permission to your terminal app under \
-         System Settings → Privacy & Security → Accessibility, then retry"
+        "\nhint: open System Settings → Privacy & Security → Accessibility, add the \
+         terminal app you run cliptype from (e.g. Terminal / iTerm) and enable it, \
+         then fully quit and reopen that terminal app and retry"
     } else {
         ""
     }

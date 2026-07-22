@@ -18,5 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial project scaffold: Cargo manifest, module layout (`cli`, `clipboard`, `typer`), README, MIT license.
 - Cross-platform CI (macOS / Windows / Linux) with fmt, clippy, build, and test.
 
+- On macOS, cliptype now detects a missing Accessibility permission up front and
+  exits with clear guidance, instead of appearing to succeed while the OS
+  silently discards every keystroke.
+
 ### Changed
 - All user-facing CLI messages and `--help` text are now in English.
+
+### Fixed
+- Trailing characters could be lost when the process exited before the last
+  keyboard events were delivered; cliptype now waits briefly before exiting.
+- Per-character mode (`--interval > 0`) was intercepted by active input methods
+  (IMEs), mangling CJK text and dropping emoji; it now uses the same
+  IME-transparent event mechanism as the fast path.

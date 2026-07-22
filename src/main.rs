@@ -27,6 +27,9 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
+    // 権限が無いならカウントダウンで待たせる前に失敗させる
+    typer::ensure_permission()?;
+
     // ウィンドウを切り替える猶予を与える
     println!(
         "Typing starts in {}ms — focus the target window now…",

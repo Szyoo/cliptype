@@ -44,8 +44,14 @@ cliptype --delay 3000
 
 ### macOS
 Simulating keystrokes requires the **Accessibility** permission. Grant it under
-*System Settings → Privacy & Security → Accessibility*, and add your terminal
-(or the `cliptype` binary) to the allowed list.
+*System Settings → Privacy & Security → Accessibility*, and add the terminal app
+you run `cliptype` from to the allowed list. After granting, **fully quit and
+reopen the terminal app** — the permission is not picked up by already-running
+processes.
+
+Without the permission, macOS silently discards simulated keystrokes; `cliptype`
+detects this and exits with an error instead of appearing to succeed while
+typing nothing.
 
 ### Linux
 On X11, `enigo`/`arboard` depend on `libxdo` and X11 development libraries.
