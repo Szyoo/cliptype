@@ -1,0 +1,97 @@
+name: Release
+
+# v* タグの push で三プラットフォームのバイナリをビルドして GitHub Release に添付する
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: build (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # macOS / Windows はトレイ UI 込み、Linux はホットキーまで
+          # （トレイは GTK 依存が重いため Linux 非対応）
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            features: tray
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            features: tray
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            features: tray
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            features: hotkey
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxdo-dev libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }} --features ${{ matrix.features }}
+
+      - name: Package (unix)
+        if: runner.os != 'Windows'
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar czf cliptype-${{ github.ref_name }}-${{ matrix.target }}.tar.gz cliptype
+          shasum -a 256 cliptype-${{ github.ref_name }}-${{ matrix.target }}.tar.gz > cliptype-${{ github.ref_name }}-${{ matrix.target }}.tar.gz.sha256
+
+      - name: Package (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd target/${{ matrix.target }}/release
+          Compress-Archive -Path cliptype.exe -DestinationPath cliptype-${{ github.ref_name }}-${{ matrix.target }}.zip
+          (Get-FileHash cliptype-${{ github.ref_name }}-${{ matrix.target }}.zip -Algorithm SHA256).Hash.ToLower() + "  cliptype-${{ github.ref_name }}-${{ matrix.target }}.zip" | Out-File -Encoding ascii cliptype-${{ github.ref_name }}-${{ matrix.target }}.zip.sha256
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cliptype-${{ matrix.target }}
+          path: |
+            target/${{ matrix.target }}/release/cliptype-*.tar.gz*
+            target/${{ matrix.target }}/release/cliptype-*.zip*
+          if-no-files-found: error
+
+  release:
+    name: create release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          draft: false
+          generate_release_notes: true

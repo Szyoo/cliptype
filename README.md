@@ -27,10 +27,14 @@ cliptype [OPTIONS]
 Options:
   -d, --delay <MS>      Delay before typing starts, in ms  [default: 2000]
   -i, --interval <MS>   Delay between keystrokes, in ms     [default: 0]
+  -s, --speed <SPEED>   Typing speed preset  [possible values: fast, normal, slow]
       --dry-run         Print what would be typed instead of typing it
   -h, --help            Print help
   -V, --version         Print version
 ```
+
+`--speed` is a friendlier alternative to `--interval` (fast = no delay,
+normal = 20 ms, slow = 50 ms — for apps that drop keys at full speed).
 
 Example:
 
@@ -106,6 +110,19 @@ Wayland support depends on your compositor; XWayland generally works.
 ### Windows
 No extra setup required.
 
+## Install
+
+Prebuilt binaries for macOS (Apple Silicon & Intel), Windows, and Linux are
+attached to each [GitHub Release](https://github.com/Szyoo/cliptype/releases).
+The macOS and Windows builds include the hotkey and tray features; the Linux
+build includes the hotkey mode.
+
+On macOS, clear the quarantine flag after downloading:
+
+```sh
+xattr -d com.apple.quarantine ./cliptype
+```
+
 ## Build from source
 
 Requires a [Rust toolchain](https://rustup.rs/).
@@ -124,8 +141,8 @@ cargo build --release
 - [ ] Verify Unicode / newline / tab handling across platforms
 - [x] Optional resident hotkey mode (`--features hotkey`)
 - [x] Status bar / tray UI with settings (`--features tray`, macOS & Windows)
-- [ ] Prebuilt release binaries for macOS / Windows / Linux
-- [ ] Configurable "typing speed" presets
+- [x] Prebuilt release binaries for macOS / Windows / Linux
+- [x] Configurable "typing speed" presets (`--speed`)
 
 ## Contributing
 

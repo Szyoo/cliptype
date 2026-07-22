@@ -23,13 +23,21 @@ fn main() -> Result<()> {
     #[cfg(all(feature = "tray", any(target_os = "macos", target_os = "windows")))]
     if args.tray {
         let combo = args.hotkey.as_deref().unwrap_or(cli::DEFAULT_HOTKEY);
-        return tray::run(combo, Duration::from_millis(args.interval), args.dry_run);
+        return tray::run(
+            combo,
+            Duration::from_millis(args.effective_interval_ms()),
+            args.dry_run,
+        );
     }
 
     // 常駐ホットキーモード: 押下ごとに読み取り→送信を繰り返す
     #[cfg(feature = "hotkey")]
     if let Some(combo) = args.hotkey.as_deref() {
-        return hotkey::run(combo, Duration::from_millis(args.interval), args.dry_run);
+        return hotkey::run(
+            combo,
+            Duration::from_millis(args.effective_interval_ms()),
+            args.dry_run,
+        );
     }
 
     // クリップボードからテキストを取得
@@ -58,7 +66,7 @@ fn main() -> Result<()> {
 
     // キーストローク送信
     let opts = typer::TypeOptions {
-        interval: Duration::from_millis(args.interval),
+        interval: Duration::from_millis(args.effective_interval_ms()),
     };
     typer::type_text(&text, &opts)?;
 
