@@ -3,6 +3,8 @@
 
 mod cli;
 mod clipboard;
+#[cfg(feature = "hotkey")]
+mod hotkey;
 mod typer;
 
 use anyhow::Result;
@@ -12,6 +14,12 @@ use std::time::Duration;
 
 fn main() -> Result<()> {
     let args = cli::Args::parse();
+
+    // 常駐ホットキーモード: 押下ごとに読み取り→送信を繰り返す
+    #[cfg(feature = "hotkey")]
+    if let Some(combo) = args.hotkey.as_deref() {
+        return hotkey::run(combo, Duration::from_millis(args.interval), args.dry_run);
+    }
 
     // クリップボードからテキストを取得
     let text = clipboard::read_text()?;

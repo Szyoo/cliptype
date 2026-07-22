@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On macOS, cliptype now detects a missing Accessibility permission up front and
   exits with clear guidance, instead of appearing to succeed while the OS
   silently discards every keystroke.
+- Resident hotkey mode (`--features hotkey`): `cliptype --hotkey [COMBO]` stays
+  running and types the current clipboard on every press (default combo
+  `ctrl+shift+v`). Waits for the hotkey's modifier keys to be released before
+  typing so the combo does not contaminate the output.
 
 ### Changed
 - All user-facing CLI messages and `--help` text are now in English.

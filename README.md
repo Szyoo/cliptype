@@ -9,9 +9,9 @@ similar environments where <kbd>Ctrl/Cmd</kbd>+<kbd>V</kbd> simply doesn't work.
 
 Cross-platform: **macOS**, **Windows**, and **Linux**.
 
-> Status: core functionality implemented (clipboard read, keystroke sending,
-> newline/tab handling). Cross-platform verification and the resident hotkey
-> mode are in progress. See the [Roadmap](#roadmap).
+> Status: core functionality and the optional resident hotkey mode are
+> implemented and verified on macOS. Windows/Linux runtime verification is
+> in progress. See the [Roadmap](#roadmap).
 
 ## How it works
 
@@ -39,6 +39,24 @@ Example:
 cliptype --delay 3000
 # Switch to the target window within 3s; the clipboard text is typed in.
 ```
+
+### Resident hotkey mode (optional)
+
+When built with the `hotkey` feature, `cliptype --hotkey` stays resident and
+types the current clipboard every time you press the hotkey — no countdown, no
+window switching; just focus the target field and press the combo:
+
+```sh
+cargo build --release --features hotkey
+
+cliptype --hotkey                    # default combo: ctrl+shift+v
+cliptype --hotkey "alt+F9"           # custom combo
+cliptype --hotkey --interval 20      # per-character typing on each press
+```
+
+`cliptype` waits until the hotkey's modifier keys are released before typing,
+so the combo itself does not contaminate the output. `--delay` is ignored in
+this mode. Press <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal to quit.
 
 ## Platform notes
 
@@ -82,7 +100,7 @@ cargo build --release
 - [x] Implement clipboard text read (`clipboard::read_text`)
 - [x] Implement keystroke sending (`typer::type_text`)
 - [ ] Verify Unicode / newline / tab handling across platforms
-- [ ] Optional resident hotkey mode (`--features hotkey`)
+- [x] Optional resident hotkey mode (`--features hotkey`)
 - [ ] Prebuilt release binaries for macOS / Windows / Linux
 - [ ] Configurable "typing speed" presets
 

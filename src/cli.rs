@@ -20,5 +20,15 @@ pub struct Args {
     /// Print what would be typed instead of typing it
     #[arg(long)]
     pub dry_run: bool,
-    // TODO: --hotkey フラグ（常駐モード）を hotkey フィーチャー有効時に追加する。
+
+    /// Stay resident and type the clipboard each time COMBO is pressed
+    /// (e.g. "ctrl+shift+v", "alt+F9"); --delay is ignored in this mode
+    #[cfg(feature = "hotkey")]
+    #[arg(
+        long,
+        value_name = "COMBO",
+        num_args = 0..=1,
+        default_missing_value = "ctrl+shift+v"
+    )]
+    pub hotkey: Option<String>,
 }
