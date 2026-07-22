@@ -68,6 +68,10 @@ final class AppState: ObservableObject {
                 if trusted != state.axTrusted {
                     state.axTrusted = trusted
                 }
+                // 「一度でも許可されたことがある」を記録（起動時の自動ダイアログ抑制用）
+                if trusted, !UserDefaults.standard.bool(forKey: "hasEverBeenTrusted") {
+                    UserDefaults.standard.set(true, forKey: "hasEverBeenTrusted")
+                }
             }
         }
     }

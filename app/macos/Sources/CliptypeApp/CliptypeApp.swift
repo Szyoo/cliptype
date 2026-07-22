@@ -9,6 +9,13 @@ struct CliptypeApp: App {
     @StateObject private var state = AppState.shared
 
     var body: some Scene {
+        // アプリ本体（メインウィンドウ）。閉じても常駐は続き、Dock クリックで再表示される
+        WindowGroup("Cliptype", id: "main") {
+            MainView()
+                .environmentObject(state)
+        }
+        .windowResizability(.contentSize)
+
         MenuBarExtra {
             MenuContent()
                 .environmentObject(state)
@@ -28,9 +35,15 @@ struct CliptypeApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSLog("cliptype: app did finish launching")
-        // 初回起動でアクセシビリティ権限のシステムダイアログを出す
-        PermissionHelper.promptIfNeeded()
         AppState.shared.startPermissionWatcher()
+        // システムの許可ダイアログを自動で出すのは「一度も許可されたことがない」
+        // 初回だけ。再ビルドで署名が変わって許可が失効した場合などに、起動のたび
+        // ダイアログを連発しない（メニューの警告と設定画面から誘導する）。
+        if !PermissionHelper.isTrusted(),
+            !UserDefaults.standard.bool(forKey: "hasEverBeenTrusted")
+        {
+            PermissionHelper.promptIfNeeded()
+        }
         AppState.shared.activateHotkey()
     }
 }
@@ -38,14 +51,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 /// メニューバーのドロップダウン内容。
 struct MenuContent: View {
     @EnvironmentObject private var state: AppState
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         Text("cliptype — \(state.hotkeyPreset.label)")
 
         if !state.axTrusted {
             Button("⚠ Grant Accessibility permission…") {
+                PermissionHelper.promptIfNeeded()
                 PermissionHelper.openSystemSettings()
             }
+        }
+
+        Button("Open Cliptype…") {
+            openWindow(id: "main")
+            NSApp.activate(ignoringOtherApps: true)
         }
 
         Divider()
