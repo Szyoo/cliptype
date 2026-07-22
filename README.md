@@ -58,6 +58,28 @@ cliptype --hotkey --interval 20      # per-character typing on each press
 so the combo itself does not contaminate the output. `--delay` is ignored in
 this mode. Press <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal to quit.
 
+### Status bar / tray mode (optional, macOS & Windows)
+
+Built with the `tray` feature, `cliptype --tray` adds a status bar (menu bar /
+system tray) icon on top of the resident hotkey mode:
+
+- shows the active hotkey
+- pause / resume typing
+- switch typing speed — persisted to `~/.config/cliptype/config.toml`
+  (`%APPDATA%\cliptype\` on Windows) and restored on the next launch
+
+```sh
+cargo build --release --features tray
+
+cliptype --tray                     # status bar icon + default hotkey
+cliptype --tray --hotkey "alt+F9"   # custom combo
+```
+
+The UI is native on each platform — `NSStatusItem` on macOS, the notification
+area on Windows — and thanks to conditional compilation each platform's binary
+contains only its own UI code. Linux builds don't include the tray; the CLI and
+hotkey modes work everywhere.
+
 ## Platform notes
 
 ### macOS
@@ -101,6 +123,7 @@ cargo build --release
 - [x] Implement keystroke sending (`typer::type_text`)
 - [ ] Verify Unicode / newline / tab handling across platforms
 - [x] Optional resident hotkey mode (`--features hotkey`)
+- [x] Status bar / tray UI with settings (`--features tray`, macOS & Windows)
 - [ ] Prebuilt release binaries for macOS / Windows / Linux
 - [ ] Configurable "typing speed" presets
 

@@ -25,6 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   running and types the current clipboard on every press (default combo
   `ctrl+shift+v`). Waits for the hotkey's modifier keys to be released before
   typing so the combo does not contaminate the output.
+- Status bar / tray mode (`--features tray`, macOS & Windows): `cliptype --tray`
+  shows a native status bar icon with the active hotkey, pause/resume, and
+  typing speed presets. Speed changes persist to a config file and are restored
+  on the next launch. Each platform's binary contains only its own UI code;
+  Linux builds don't include the tray.
 
 ### Changed
 - All user-facing CLI messages and `--help` text are now in English.

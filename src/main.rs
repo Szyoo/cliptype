@@ -3,8 +3,12 @@
 
 mod cli;
 mod clipboard;
+#[cfg(all(feature = "tray", any(target_os = "macos", target_os = "windows")))]
+mod config;
 #[cfg(feature = "hotkey")]
 mod hotkey;
+#[cfg(all(feature = "tray", any(target_os = "macos", target_os = "windows")))]
+mod tray;
 mod typer;
 
 use anyhow::Result;
@@ -14,6 +18,13 @@ use std::time::Duration;
 
 fn main() -> Result<()> {
     let args = cli::Args::parse();
+
+    // トレイモード: ステータスバー常駐 + ホットキー
+    #[cfg(all(feature = "tray", any(target_os = "macos", target_os = "windows")))]
+    if args.tray {
+        let combo = args.hotkey.as_deref().unwrap_or(cli::DEFAULT_HOTKEY);
+        return tray::run(combo, Duration::from_millis(args.interval), args.dry_run);
+    }
 
     // 常駐ホットキーモード: 押下ごとに読み取り→送信を繰り返す
     #[cfg(feature = "hotkey")]

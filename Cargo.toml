@@ -19,14 +19,25 @@ clap = { version = "4", features = ["derive"] }
 # エラーハンドリング
 anyhow = "1"
 
-# グローバルホットキー（デーモンモード用、後続で実装予定）
+# グローバルホットキー（常駐モード用）
 [dependencies.global-hotkey]
 version = "0.6"
 optional = true
 
+# ステータスバー/トレイ UI（macOS / Windows のみ）。
+# tray-icon は各プラットフォームのネイティブ API（NSStatusItem / Shell_NotifyIcon）の
+# 薄いラッパー、tao はメインスレッドのイベントループ。target 指定により
+# macOS ビルドに Windows のコードは一切入らず、逆も同様。
+# Linux は GTK 依存が重いためトレイ非対応（CLI/ホットキーは全プラットフォーム対応）。
+[target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
+tray-icon = { version = "0.24", optional = true }
+tao = { version = "0.35", default-features = false, optional = true }
+
 [features]
 # ホットキー常駐モードは任意機能として分離
 hotkey = ["dep:global-hotkey"]
+# ステータスバー UI（hotkey を含む）。macOS / Windows のみ。
+tray = ["hotkey", "dep:tray-icon", "dep:tao"]
 
 [profile.release]
 opt-level = "z"   # バイナリサイズ優先

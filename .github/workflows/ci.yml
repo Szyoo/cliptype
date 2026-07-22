@@ -44,8 +44,8 @@ jobs:
       - name: Build
         run: cargo build --verbose
 
-      - name: Build (hotkey feature)
-        run: cargo build --verbose --features hotkey
+      - name: Build (all features)
+        run: cargo build --verbose --all-features
 
       - name: Test
         run: cargo test --verbose --all-features

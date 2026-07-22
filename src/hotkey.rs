@@ -48,8 +48,8 @@ pub fn run(combo: &str, interval: Duration, dry_run: bool) -> Result<()> {
     Ok(())
 }
 
-/// ホットキー押下 1 回分の処理。
-fn handle_press(interval: Duration, dry_run: bool) -> Result<()> {
+/// ホットキー押下 1 回分の処理（トレイモードからも使う）。
+pub fn handle_press(interval: Duration, dry_run: bool) -> Result<()> {
     let text = clipboard::read_text().context("failed to read the clipboard")?;
     if text.is_empty() {
         eprintln!("The clipboard is empty or does not contain text.");
