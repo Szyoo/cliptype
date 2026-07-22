@@ -49,7 +49,28 @@ final class AppState: ObservableObject {
 
     @Published var isPaused = false
 
+    /// アクセシビリティ権限の現在値。メニュー/設定の表示はこれを参照する。
+    /// AXIsProcessTrusted() を直接ビューで呼ぶと、付与後もメニューが
+    /// 再評価されず古い表示が残るため、監視付きの @Published にしている。
+    @Published private(set) var axTrusted = PermissionHelper.isTrusted()
+
     private let hotkeyManager = HotkeyManager()
+    private var permissionTimer: Timer?
+
+    /// 権限状態の変化（付与・剥奪とも）を定期的に拾ってメニューへ反映する。
+    /// AXIsProcessTrusted は極めて軽いので 2 秒間隔のポーリングで十分。
+    func startPermissionWatcher() {
+        guard permissionTimer == nil else { return }
+        permissionTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            Task { @MainActor in
+                let state = AppState.shared
+                let trusted = PermissionHelper.isTrusted()
+                if trusted != state.axTrusted {
+                    state.axTrusted = trusted
+                }
+            }
+        }
+    }
 
     var hotkeyPreset: HotkeyPreset {
         Self.hotkeyPresets.first { $0.id == hotkeyPresetId } ?? Self.hotkeyPresets[0]

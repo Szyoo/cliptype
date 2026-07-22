@@ -37,7 +37,7 @@ struct SettingsView: View {
             }
 
             Section {
-                if PermissionHelper.isTrusted() {
+                if state.axTrusted {
                     Label("Accessibility permission granted", systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
                 } else {

@@ -53,7 +53,14 @@ PLIST
 
 echo "APPL????" > "$APP_DIR/Contents/PkgInfo"
 
-# ad-hoc 署名: TCC がアプリを安定して識別できるようにする（配布用の署名は将来課題）
-codesign --force --deep --sign - "$APP_DIR"
+# 署名: CODESIGN_ID があればそれを使う（自己署名証明書なら再ビルドしても
+# TCC の許可が維持される）。無ければ ad-hoc 署名 —— この場合、再ビルドの
+# たびに署名が変わり、以前のアクセシビリティ許可は無効になる。
+codesign --force --deep --sign "${CODESIGN_ID:--}" "$APP_DIR"
 
 echo "==> done: $APP_DIR"
+if [ -z "${CODESIGN_ID:-}" ]; then
+    echo "note: ad-hoc signed. If you rebuilt, macOS treats this as a new app —"
+    echo "      reset the stale permission and re-grant on next launch:"
+    echo "      tccutil reset Accessibility io.github.szyoo.cliptype"
+fi

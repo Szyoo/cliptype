@@ -30,6 +30,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSLog("cliptype: app did finish launching")
         // 初回起動でアクセシビリティ権限のシステムダイアログを出す
         PermissionHelper.promptIfNeeded()
+        AppState.shared.startPermissionWatcher()
         AppState.shared.activateHotkey()
     }
 }
@@ -41,7 +42,7 @@ struct MenuContent: View {
     var body: some View {
         Text("cliptype — \(state.hotkeyPreset.label)")
 
-        if !PermissionHelper.isTrusted() {
+        if !state.axTrusted {
             Button("⚠ Grant Accessibility permission…") {
                 PermissionHelper.openSystemSettings()
             }
