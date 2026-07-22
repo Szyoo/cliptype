@@ -112,6 +112,8 @@ pub fn run(combo: &str, cli_interval: Duration, dry_run: bool) -> Result<()> {
     ])?;
 
     // イベントループ。メニューイベントは proxy でメインスレッドへ送り返す
+    // （mut は macOS の set_activation_policy にのみ必要）
+    #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
     let mut event_loop = EventLoopBuilder::<UserEvent>::with_user_event().build();
     #[cfg(target_os = "macos")]
     {
