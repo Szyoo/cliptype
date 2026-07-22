@@ -49,3 +49,8 @@ jobs:
 
       - name: Test
         run: cargo test --verbose --all-features
+
+      # macOS ネイティブアプリ（SwiftUI）もビルドが通ることを確認する
+      - name: Build macOS app (Swift)
+        if: runner.os == 'macOS'
+        run: swift build --package-path app/macos

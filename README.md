@@ -84,6 +84,22 @@ area on Windows — and thanks to conditional compilation each platform's binary
 contains only its own UI code. Linux builds don't include the tray; the CLI and
 hotkey modes work everywhere.
 
+### macOS app (menu bar)
+
+For macOS there is a native menu bar app — the intended way to use cliptype on
+a Mac. It bundles the Rust binary as its typing engine and adds a menu bar icon
+(pause, typing speed, hotkey) plus a settings window:
+
+```sh
+scripts/bundle-macos.sh    # requires a Rust toolchain and Xcode command line tools
+open dist/Cliptype.app
+```
+
+On first launch the app asks for the Accessibility permission — grant it to
+**Cliptype** in System Settings (one entry covers the bundled engine too), then
+relaunch the app. Focus any input field and press <kbd>⌃⇧V</kbd> (configurable
+in Settings).
+
 ## Platform notes
 
 ### macOS

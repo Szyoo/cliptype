@@ -11,3 +11,10 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Swift (macOS app)
+app/macos/.build/
+app/macos/.swiftpm/
+
+# Bundled app output
+/dist
