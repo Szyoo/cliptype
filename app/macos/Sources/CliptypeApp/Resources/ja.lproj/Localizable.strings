@@ -1,0 +1,26 @@
+/* メニュー */
+"⚠ Grant Accessibility permission…" = "⚠ アクセシビリティ権限を許可…";
+"Open Cliptype…" = "Cliptype を開く…";
+"Pause" = "一時停止";
+"Typing speed" = "入力速度";
+"Settings…" = "設定…";
+"Quit cliptype" = "cliptype を終了";
+
+/* 速度プリセット */
+"Fastest (no per-key delay)" = "最速（キー間隔なし）";
+"Steady (20 ms per key)" = "安定（1 キーあたり 20 ミリ秒）";
+"Careful (50 ms per key)" = "慎重（1 キーあたり 50 ミリ秒）";
+
+/* 設定ウィンドウ */
+"Hotkey" = "ホットキー";
+"Focus the target field, press the hotkey, and the clipboard text is typed in." = "対象の入力欄にフォーカスしてホットキーを押すと、クリップボードのテキストが入力されます。";
+"Typing" = "入力";
+"Slow down if the target app drops characters (common in remote desktops)." = "文字が抜ける場合（リモートデスクトップで多い）は速度を落としてください。";
+"Permissions" = "権限";
+"Accessibility permission granted" = "アクセシビリティ権限は許可済み";
+"Accessibility permission required — without it macOS discards simulated keystrokes" = "アクセシビリティ権限が必要です——無いと macOS が模擬キー入力を破棄します";
+"Open System Settings…" = "システム設定を開く…";
+
+/* メインウィンドウ */
+"Copy text, focus the target field, press %@." = "テキストをコピーし、対象の入力欄にフォーカスして %@ を押してください。";
+"Paused" = "一時停止中";

@@ -57,22 +57,22 @@ struct MenuContent: View {
         Text("cliptype — \(state.hotkeyPreset.label)")
 
         if !state.axTrusted {
-            Button("⚠ Grant Accessibility permission…") {
+            Button(L("⚠ Grant Accessibility permission…")) {
                 PermissionHelper.promptIfNeeded()
                 PermissionHelper.openSystemSettings()
             }
         }
 
-        Button("Open Cliptype…") {
+        Button(L("Open Cliptype…")) {
             openWindow(id: "main")
             NSApp.activate(ignoringOtherApps: true)
         }
 
         Divider()
 
-        Toggle("Pause", isOn: $state.isPaused)
+        Toggle(L("Pause"), isOn: $state.isPaused)
 
-        Picker("Typing speed", selection: $state.intervalMs) {
+        Picker(L("Typing speed"), selection: $state.intervalMs) {
             ForEach(AppState.speedPresets, id: \.intervalMs) { preset in
                 Text(preset.label).tag(preset.intervalMs)
             }
@@ -81,12 +81,12 @@ struct MenuContent: View {
         Divider()
 
         SettingsLink {
-            Text("Settings…")
+            Text(L("Settings…"))
         }
 
         Divider()
 
-        Button("Quit cliptype") {
+        Button(L("Quit cliptype")) {
             NSApplication.shared.terminate(nil)
         }
     }

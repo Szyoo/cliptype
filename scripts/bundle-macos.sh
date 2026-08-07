@@ -22,11 +22,25 @@ mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 cp "$SWIFT_BIN" "$APP_DIR/Contents/MacOS/CliptypeApp"
 cp "$REPO/target/release/cliptype" "$APP_DIR/Contents/MacOS/cliptype"
 
+# SwiftPM のリソースバンドル（ローカライズ文字列など）を同梱する
+SWIFT_BIN_DIR="$(dirname "$SWIFT_BIN")"
+if [ -d "$SWIFT_BIN_DIR/CliptypeApp_CliptypeApp.bundle" ]; then
+    cp -R "$SWIFT_BIN_DIR/CliptypeApp_CliptypeApp.bundle" "$APP_DIR/Contents/Resources/"
+fi
+
 cat > "$APP_DIR/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>zh-Hans</string>
+        <string>ja</string>
+    </array>
     <key>CFBundleExecutable</key>
     <string>CliptypeApp</string>
     <key>CFBundleIdentifier</key>

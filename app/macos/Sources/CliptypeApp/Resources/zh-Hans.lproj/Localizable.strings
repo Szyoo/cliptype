@@ -1,0 +1,26 @@
+/* メニュー */
+"⚠ Grant Accessibility permission…" = "⚠ 授予辅助功能权限…";
+"Open Cliptype…" = "打开 Cliptype…";
+"Pause" = "暂停";
+"Typing speed" = "打字速度";
+"Settings…" = "设置…";
+"Quit cliptype" = "退出 cliptype";
+
+/* 速度プリセット */
+"Fastest (no per-key delay)" = "最快（无按键间隔）";
+"Steady (20 ms per key)" = "平稳（每键 20 毫秒）";
+"Careful (50 ms per key)" = "谨慎（每键 50 毫秒）";
+
+/* 設定ウィンドウ */
+"Hotkey" = "热键";
+"Focus the target field, press the hotkey, and the clipboard text is typed in." = "聚焦目标输入框，按下热键，剪贴板文本就会被打出。";
+"Typing" = "输入";
+"Slow down if the target app drops characters (common in remote desktops)." = "如果目标应用出现吞字（远程桌面常见），请调慢速度。";
+"Permissions" = "权限";
+"Accessibility permission granted" = "已授予辅助功能权限";
+"Accessibility permission required — without it macOS discards simulated keystrokes" = "需要辅助功能权限——没有它 macOS 会丢弃模拟按键";
+"Open System Settings…" = "打开系统设置…";
+
+/* メインウィンドウ */
+"Copy text, focus the target field, press %@." = "复制文本，聚焦目标输入框，按 %@。";
+"Paused" = "已暂停";

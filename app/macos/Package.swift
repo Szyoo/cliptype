@@ -5,11 +5,13 @@ import PackageDescription
 
 let package = Package(
     name: "CliptypeApp",
+    defaultLocalization: "en",
     platforms: [.macOS(.v14)],
     targets: [
         .executableTarget(
             name: "CliptypeApp",
-            path: "Sources/CliptypeApp"
+            path: "Sources/CliptypeApp",
+            resources: [.process("Resources")]
         )
     ]
 )

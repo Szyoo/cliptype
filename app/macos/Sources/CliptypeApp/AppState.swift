@@ -19,9 +19,9 @@ final class AppState: ObservableObject {
 
     /// 速度プリセット。Rust CLI の --speed と同じ値に揃えている。
     static let speedPresets: [(label: String, intervalMs: Int)] = [
-        ("Fastest (no per-key delay)", 0),
-        ("Steady (20 ms per key)", 20),
-        ("Careful (50 ms per key)", 50),
+        (L("Fastest (no per-key delay)"), 0),
+        (L("Steady (20 ms per key)"), 20),
+        (L("Careful (50 ms per key)"), 50),
     ]
 
     /// 選べるホットキー。keyCode 9 = V, 11 = B, 35 = P（US 配列の仮想キーコード）

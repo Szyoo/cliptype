@@ -1,5 +1,7 @@
 # cliptype
 
+**English** | [简体中文](README.zh-CN.md)
+
 Type the contents of your clipboard as simulated keystrokes.
 
 `cliptype` reads whatever text is on your clipboard and "types" it out character

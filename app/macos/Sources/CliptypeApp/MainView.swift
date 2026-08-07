@@ -22,13 +22,13 @@ struct MainView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Cliptype")
                     .font(.title2.bold())
-                Text("Copy text, focus the target field, press \(state.hotkeyPreset.label).")
+                Text(L("Copy text, focus the target field, press %@.", state.hotkeyPreset.label))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
             if state.isPaused {
-                Label("Paused", systemImage: "pause.circle.fill")
+                Label(L("Paused"), systemImage: "pause.circle.fill")
                     .foregroundStyle(.orange)
             }
         }

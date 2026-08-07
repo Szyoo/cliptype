@@ -9,49 +9,49 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section {
-                Picker("Hotkey", selection: hotkeyBinding) {
+                Picker(L("Hotkey"), selection: hotkeyBinding) {
                     ForEach(AppState.hotkeyPresets) { preset in
                         Text(preset.label).tag(preset.id)
                     }
                 }
                 .pickerStyle(.segmented)
-                Text("Focus the target field, press the hotkey, and the clipboard text is typed in.")
+                Text(L("Focus the target field, press the hotkey, and the clipboard text is typed in."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } header: {
-                Text("Hotkey")
+                Text(L("Hotkey"))
             }
 
             Section {
-                Picker("Typing speed", selection: $state.intervalMs) {
+                Picker(L("Typing speed"), selection: $state.intervalMs) {
                     ForEach(AppState.speedPresets, id: \.intervalMs) { preset in
                         Text(preset.label).tag(preset.intervalMs)
                     }
                 }
                 .pickerStyle(.radioGroup)
-                Text("Slow down if the target app drops characters (common in remote desktops).")
+                Text(L("Slow down if the target app drops characters (common in remote desktops)."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } header: {
-                Text("Typing")
+                Text(L("Typing"))
             }
 
             Section {
                 if state.axTrusted {
-                    Label("Accessibility permission granted", systemImage: "checkmark.circle.fill")
+                    Label(L("Accessibility permission granted"), systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
                 } else {
                     Label(
-                        "Accessibility permission required — without it macOS discards simulated keystrokes",
+                        L("Accessibility permission required — without it macOS discards simulated keystrokes"),
                         systemImage: "exclamationmark.triangle.fill"
                     )
                     .foregroundStyle(.orange)
-                    Button("Open System Settings…") {
+                    Button(L("Open System Settings…")) {
                         PermissionHelper.openSystemSettings()
                     }
                 }
             } header: {
-                Text("Permissions")
+                Text(L("Permissions"))
             }
         }
         .formStyle(.grouped)
