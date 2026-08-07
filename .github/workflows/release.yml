@@ -78,9 +78,39 @@ jobs:
             target/${{ matrix.target }}/release/cliptype-*.zip*
           if-no-files-found: error
 
+  build-macos-app:
+    name: build (macOS app, universal)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Cliptype.app (universal)
+        run: BUILD_UNIVERSAL=1 scripts/bundle-macos.sh
+
+      - name: Package
+        run: |
+          cd dist
+          ditto -c -k --keepParent Cliptype.app cliptype-${{ github.ref_name }}-macos-app-universal.zip
+          shasum -a 256 cliptype-${{ github.ref_name }}-macos-app-universal.zip > cliptype-${{ github.ref_name }}-macos-app-universal.zip.sha256
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cliptype-macos-app
+          path: dist/cliptype-*.zip*
+          if-no-files-found: error
+
   release:
     name: create release
-    needs: build
+    needs: [build, build-macos-app]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts

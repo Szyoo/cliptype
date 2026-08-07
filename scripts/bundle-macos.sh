@@ -8,19 +8,37 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 APP_DIR="$REPO/dist/Cliptype.app"
 VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' "$REPO/Cargo.toml" | head -1)"
 
-echo "==> building Rust engine (release)"
-cargo build --release --manifest-path "$REPO/Cargo.toml"
+# BUILD_UNIVERSAL=1 で arm64 + x86_64 のユニバーサルバイナリを組む（リリース用）
+if [ "${BUILD_UNIVERSAL:-0}" = "1" ]; then
+    echo "==> building Rust engine (release, universal)"
+    rustup target add aarch64-apple-darwin x86_64-apple-darwin >/dev/null 2>&1 || true
+    cargo build --release --target aarch64-apple-darwin --manifest-path "$REPO/Cargo.toml"
+    cargo build --release --target x86_64-apple-darwin --manifest-path "$REPO/Cargo.toml"
+    mkdir -p "$REPO/target/universal"
+    lipo -create -output "$REPO/target/universal/cliptype" \
+        "$REPO/target/aarch64-apple-darwin/release/cliptype" \
+        "$REPO/target/x86_64-apple-darwin/release/cliptype"
+    RUST_BIN="$REPO/target/universal/cliptype"
+    SWIFT_ARCH_FLAGS="--arch arm64 --arch x86_64"
+else
+    echo "==> building Rust engine (release)"
+    cargo build --release --manifest-path "$REPO/Cargo.toml"
+    RUST_BIN="$REPO/target/release/cliptype"
+    SWIFT_ARCH_FLAGS=""
+fi
 
 echo "==> building SwiftUI app (release)"
-swift build -c release --package-path "$REPO/app/macos"
-SWIFT_BIN="$(swift build -c release --package-path "$REPO/app/macos" --show-bin-path)/CliptypeApp"
+# shellcheck disable=SC2086
+swift build -c release $SWIFT_ARCH_FLAGS --package-path "$REPO/app/macos"
+# shellcheck disable=SC2086
+SWIFT_BIN="$(swift build -c release $SWIFT_ARCH_FLAGS --package-path "$REPO/app/macos" --show-bin-path)/CliptypeApp"
 
 echo "==> assembling $APP_DIR (v$VERSION)"
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 
 cp "$SWIFT_BIN" "$APP_DIR/Contents/MacOS/CliptypeApp"
-cp "$REPO/target/release/cliptype" "$APP_DIR/Contents/MacOS/cliptype"
+cp "$RUST_BIN" "$APP_DIR/Contents/MacOS/cliptype"
 
 # SwiftPM のリソースバンドル（ローカライズ文字列など）を同梱する
 SWIFT_BIN_DIR="$(dirname "$SWIFT_BIN")"

@@ -1,172 +1,138 @@
 # cliptype
 
-**English** | [简体中文](README.zh-CN.md)
+**简体中文** | [English](README.en.md)
 
-Type the contents of your clipboard as simulated keystrokes.
+把剪贴板内容以模拟键盘输入的方式"打"出来。
 
-`cliptype` reads whatever text is on your clipboard and "types" it out character
-by character as real keyboard input. This is useful for fields that block
-paste — remote desktop sessions, VMs, some password prompts, kiosk software, and
-similar environments where <kbd>Ctrl/Cmd</kbd>+<kbd>V</kbd> simply doesn't work.
+`cliptype` 读取剪贴板中的文本，然后像真人打字一样逐字符输入到当前焦点位置。
+适用于禁止粘贴的输入框——远程桌面、虚拟机、部分密码框、自助终端软件等
+<kbd>Ctrl/Cmd</kbd>+<kbd>V</kbd> 失效的场景。
 
-Cross-platform: **macOS**, **Windows**, and **Linux**.
+跨平台：**macOS**（原生应用 + CLI）、**Windows**（托盘 + CLI）、**Linux**（CLI）。
 
-> Status: core functionality and the optional resident hotkey mode are
-> implemented and verified on macOS. Windows/Linux runtime verification is
-> in progress. See the [Roadmap](#roadmap).
+> 状态：macOS 上已实现并验证；Windows / Linux 的运行时验证进行中。
+> 见[路线图](#路线图)。
 
-## How it works
+## 安装
 
-1. Read the current clipboard text (via [`arboard`](https://crates.io/crates/arboard)).
-2. Wait a short, configurable delay so you can focus the target window.
-3. Send the text as keystrokes (via [`enigo`](https://crates.io/crates/enigo)).
+所有安装包都在 [GitHub Releases](https://github.com/Szyoo/cliptype/releases) 页面。
+macOS 用户有两种使用方式，**任选其一**：
 
-## Usage
+### macOS · 方式一：安装应用（推荐）
+
+图形界面 + 常驻菜单栏，适合日常使用。
+
+1. 下载 `cliptype-vX.Y.Z-macos-app-universal.zip`（同时支持 Apple Silicon 和 Intel）。
+2. 解压，把 **Cliptype.app** 拖入「应用程序」文件夹。
+3. 应用暂未进行开发者签名，首次运行前先清除隔离标记（终端执行）：
+
+   ```sh
+   xattr -d com.apple.quarantine /Applications/Cliptype.app
+   ```
+
+4. 打开 Cliptype。首次启动会弹出授权引导：到**系统设置 → 隐私与安全性 →
+   辅助功能**，给 **Cliptype** 打开开关（只需授权这一个条目，内置输入引擎
+   自动继承）。
+5. 复制一段文本 → 聚焦目标输入框 → 按 <kbd>⌃⇧V</kbd>。
+   热键与打字速度可在主窗口 / 菜单栏图标 → 设置中修改。
+
+### macOS · 方式二：终端 CLI
+
+无图形界面，适合开发者和脚本场景。
+
+1. 下载 `cliptype-vX.Y.Z-aarch64-apple-darwin.tar.gz`（Apple Silicon）
+   或 `x86_64-apple-darwin`（Intel），解压得到 `cliptype`。
+2. 清除隔离标记：`xattr -d com.apple.quarantine ./cliptype`
+3. 授权对象是**运行它的终端 App**：到系统设置 → 辅助功能，加入并打开
+   Terminal / iTerm 等你实际使用的终端，然后**完全退出并重开终端**。
+4. 见下方[CLI 用法](#cli-用法)。
+
+> 两种方式的授权互相独立：应用方式授权 Cliptype 本身；CLI 方式授权终端。
+> 没有权限时 macOS 会静默丢弃模拟按键，cliptype 会检测并报错而不是假装成功。
+
+### Windows
+
+下载 `cliptype-vX.Y.Z-x86_64-pc-windows-msvc.zip`，解压得到 `cliptype.exe`，
+无需额外配置。`cliptype.exe --tray` 启动托盘常驻模式。
+
+### Linux
+
+下载 `cliptype-vX.Y.Z-x86_64-unknown-linux-gnu.tar.gz` 解压即用（X11；
+Wayland 取决于合成器，XWayland 一般可用）。运行时需要 `libxdo`：
+
+```sh
+sudo apt-get install -y libxdo3   # Debian/Ubuntu 运行时
+```
+
+### 从源码构建
+
+需要 [Rust 工具链](https://rustup.rs/)；macOS 应用另需 Xcode 命令行工具。
+
+```sh
+git clone https://github.com/Szyoo/cliptype
+cd cliptype
+cargo build --release            # CLI，二进制在 target/release/cliptype
+scripts/bundle-macos.sh          # macOS 应用，产物在 dist/Cliptype.app
+```
+
+Linux 构建依赖：`libxdo-dev` 及 xcb 系列开发库（见 CI 配置）。
+
+## CLI 用法
 
 ```
 cliptype [OPTIONS]
 
 Options:
-  -d, --delay <MS>      Delay before typing starts, in ms  [default: 2000]
-  -i, --interval <MS>   Delay between keystrokes, in ms     [default: 0]
-  -s, --speed <SPEED>   Typing speed preset  [possible values: fast, normal, slow]
-      --dry-run         Print what would be typed instead of typing it
-  -h, --help            Print help
-  -V, --version         Print version
+  -d, --delay <MS>      开始输入前的延迟（毫秒）        [默认: 2000]
+  -i, --interval <MS>   每个按键之间的间隔（毫秒）      [默认: 0]
+  -s, --speed <SPEED>   打字速度预设  [可选值: fast, normal, slow]
+      --dry-run         只打印将要输入的内容，不实际输入
+  -h, --help            显示帮助
+  -V, --version         显示版本
 ```
 
-`--speed` is a friendlier alternative to `--interval` (fast = no delay,
-normal = 20 ms, slow = 50 ms — for apps that drop keys at full speed).
-
-Example:
+`--speed` 是 `--interval` 的友好替代（fast = 无间隔，normal = 20 毫秒，
+slow = 50 毫秒——适合高速输入会吞字的应用）。
 
 ```sh
-# Copy some text, then:
+# 复制一段文字，然后：
 cliptype --delay 3000
-# Switch to the target window within 3s; the clipboard text is typed in.
+# 3 秒内切换到目标窗口，剪贴板文本会被自动打出。
 ```
 
-### Resident hotkey mode (optional)
+### 常驻热键模式（`--features hotkey`）
 
-When built with the `hotkey` feature, `cliptype --hotkey` stays resident and
-types the current clipboard every time you press the hotkey — no countdown, no
-window switching; just focus the target field and press the combo:
+`cliptype --hotkey` 常驻运行，每次按热键就把当前剪贴板打出来——无需倒计时：
 
 ```sh
-cargo build --release --features hotkey
-
-cliptype --hotkey                    # default combo: ctrl+shift+v
-cliptype --hotkey "alt+F9"           # custom combo
-cliptype --hotkey --interval 20      # per-character typing on each press
+cliptype --hotkey                    # 默认组合键: ctrl+shift+v
+cliptype --hotkey "alt+F9"           # 自定义组合键
+cliptype --hotkey --interval 20      # 每次触发按逐字符模式输入
 ```
 
-`cliptype` waits until the hotkey's modifier keys are released before typing,
-so the combo itself does not contaminate the output. `--delay` is ignored in
-this mode. Press <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal to quit.
+会等修饰键松开后再输入，组合键不污染输出。终端 <kbd>Ctrl</kbd>+<kbd>C</kbd> 退出。
 
-### Status bar / tray mode (optional, macOS & Windows)
+### 状态栏 / 托盘模式（`--features tray`，macOS 和 Windows）
 
-Built with the `tray` feature, `cliptype --tray` adds a status bar (menu bar /
-system tray) icon on top of the resident hotkey mode:
+`cliptype --tray` 在热键模式之上增加状态栏图标：显示当前热键、暂停/恢复、
+切换速度（持久化到 `~/.config/cliptype/config.toml`，Windows 为
+`%APPDATA%\cliptype\`）。macOS 日常使用建议直接用原生应用（方式一）。
 
-- shows the active hotkey
-- pause / resume typing
-- switch typing speed — persisted to `~/.config/cliptype/config.toml`
-  (`%APPDATA%\cliptype\` on Windows) and restored on the next launch
+## 路线图
 
-```sh
-cargo build --release --features tray
+- [x] 剪贴板读取与键盘输入发送（Unicode / 换行 / Tab，macOS 已验证）
+- [ ] Windows / Linux 运行时验证
+- [x] 常驻热键模式（`--features hotkey`）
+- [x] 状态栏 / 托盘 UI（`--features tray`，macOS 和 Windows）
+- [x] macOS 原生应用（主窗口 + 菜单栏，界面中/英/日三语）
+- [x] 预编译发布：CLI 三平台 + macOS 应用（universal）
+- [ ] 应用签名与公证（Apple Developer 证书后）
+- [ ] Windows 原生界面
 
-cliptype --tray                     # status bar icon + default hotkey
-cliptype --tray --hotkey "alt+F9"   # custom combo
-```
+## 参与贡献
 
-The UI is native on each platform — `NSStatusItem` on macOS, the notification
-area on Windows — and thanks to conditional compilation each platform's binary
-contains only its own UI code. Linux builds don't include the tray; the CLI and
-hotkey modes work everywhere.
+欢迎 Issue 和 Pull Request。提交前请运行 `cargo fmt` 和 `cargo clippy`。
 
-### macOS app (menu bar)
-
-For macOS there is a native menu bar app — the intended way to use cliptype on
-a Mac. It bundles the Rust binary as its typing engine and adds a menu bar icon
-(pause, typing speed, hotkey) plus a settings window:
-
-```sh
-scripts/bundle-macos.sh    # requires a Rust toolchain and Xcode command line tools
-open dist/Cliptype.app
-```
-
-On first launch the app asks for the Accessibility permission — grant it to
-**Cliptype** in System Settings (one entry covers the bundled engine too), then
-relaunch the app. Focus any input field and press <kbd>⌃⇧V</kbd> (configurable
-in Settings).
-
-## Platform notes
-
-### macOS
-Simulating keystrokes requires the **Accessibility** permission. Grant it under
-*System Settings → Privacy & Security → Accessibility*, and add the terminal app
-you run `cliptype` from to the allowed list. After granting, **fully quit and
-reopen the terminal app** — the permission is not picked up by already-running
-processes.
-
-Without the permission, macOS silently discards simulated keystrokes; `cliptype`
-detects this and exits with an error instead of appearing to succeed while
-typing nothing.
-
-### Linux
-On X11, `enigo`/`arboard` depend on `libxdo` and X11 development libraries.
-On Debian/Ubuntu:
-
-```sh
-sudo apt-get install -y libxdo-dev libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
-```
-
-Wayland support depends on your compositor; XWayland generally works.
-
-### Windows
-No extra setup required.
-
-## Install
-
-Prebuilt binaries for macOS (Apple Silicon & Intel), Windows, and Linux are
-attached to each [GitHub Release](https://github.com/Szyoo/cliptype/releases).
-The macOS and Windows builds include the hotkey and tray features; the Linux
-build includes the hotkey mode.
-
-On macOS, clear the quarantine flag after downloading:
-
-```sh
-xattr -d com.apple.quarantine ./cliptype
-```
-
-## Build from source
-
-Requires a [Rust toolchain](https://rustup.rs/).
-
-```sh
-git clone https://github.com/Szyoo/cliptype
-cd cliptype
-cargo build --release
-# binary at ./target/release/cliptype
-```
-
-## Roadmap
-
-- [x] Implement clipboard text read (`clipboard::read_text`)
-- [x] Implement keystroke sending (`typer::type_text`)
-- [ ] Verify Unicode / newline / tab handling across platforms
-- [x] Optional resident hotkey mode (`--features hotkey`)
-- [x] Status bar / tray UI with settings (`--features tray`, macOS & Windows)
-- [x] Prebuilt release binaries for macOS / Windows / Linux
-- [x] Configurable "typing speed" presets (`--speed`)
-
-## Contributing
-
-Issues and pull requests are welcome. Please run `cargo fmt` and
-`cargo clippy` before submitting.
-
-## License
+## 许可证
 
 [MIT](LICENSE)
