@@ -46,6 +46,9 @@ if [ -d "$SWIFT_BIN_DIR/CliptypeApp_CliptypeApp.bundle" ]; then
     cp -R "$SWIFT_BIN_DIR/CliptypeApp_CliptypeApp.bundle" "$APP_DIR/Contents/Resources/"
 fi
 
+# アプリアイコン（scripts/make-icon.sh で assets/appicon.svg から生成）
+cp "$REPO/app/macos/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
+
 cat > "$APP_DIR/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -61,6 +64,8 @@ cat > "$APP_DIR/Contents/Info.plist" <<PLIST
     </array>
     <key>CFBundleExecutable</key>
     <string>CliptypeApp</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
     <string>io.github.szyoo.cliptype</string>
     <key>CFBundleName</key>

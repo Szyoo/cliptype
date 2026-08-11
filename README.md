@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/appicon.svg" width="128" alt="cliptype"></p>
+
 # cliptype
 
 **简体中文** | [English](README.en.md)

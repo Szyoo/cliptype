@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4FA0F7"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+  </defs>
+  <!-- macOS squircle 背景 -->
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <!-- クリップボードの影 -->
+  <rect x="344" y="292" width="360" height="460" rx="48" fill="#0b2a6b" opacity="0.28"/>
+  <!-- クリップボード本体 -->
+  <rect x="332" y="280" width="360" height="460" rx="48" fill="#ffffff"/>
+  <!-- 上部クリップ -->
+  <rect x="442" y="238" width="140" height="74" rx="24" fill="#B3C1D4"/>
+  <circle cx="512" cy="268" r="13" fill="#4593F2"/>
+  <!-- テキスト行 -->
+  <rect x="384" y="402" width="256" height="34" rx="17" fill="#9AA7B8"/>
+  <rect x="384" y="478" width="256" height="34" rx="17" fill="#9AA7B8"/>
+  <rect x="384" y="554" width="148" height="34" rx="17" fill="#9AA7B8"/>
+  <!-- 入力カーソル（タイピング中の演出） -->
+  <rect x="552" y="544" width="28" height="54" rx="8" fill="#2563EB"/>
+</svg>
