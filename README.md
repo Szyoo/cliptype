@@ -147,6 +147,10 @@ cliptype --hotkey --interval 20      # 每次触发按逐字符模式输入
 - [ ] 应用签名与公证（Apple Developer 证书后）
 - [ ] Windows 原生界面
 
+## 更新日志
+
+见 [CHANGELOG.md](CHANGELOG.md)（[English](CHANGELOG.en.md)）。
+
 ## 参与贡献
 
 欢迎 Issue 和 Pull Request。提交前请运行 `cargo fmt` 和 `cargo clippy`。

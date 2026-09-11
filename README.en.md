@@ -169,6 +169,10 @@ everyday macOS use, prefer the native app (Option 1).
 - [ ] App signing & notarization (once an Apple Developer certificate is set up)
 - [ ] Native Windows UI
 
+## Changelog
+
+See [CHANGELOG.en.md](CHANGELOG.en.md) ([简体中文](CHANGELOG.md)).
+
 ## Contributing
 
 Issues and pull requests are welcome. Please run `cargo fmt` and

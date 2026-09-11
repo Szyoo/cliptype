@@ -1,63 +1,59 @@
-# Changelog
+# 更新日志
 
-All notable changes to this project are documented in this file.
+**简体中文** | [English](CHANGELOG.en.md)
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+本文件记录本项目的所有重要变更。
+
+格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
+版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
 ## [0.1.1] - 2026-09-11
 
-### Added
-- `--mode keycode`: press real key codes per character (looked up from the
-  current keyboard layout, with Shift/Option as needed) instead of Unicode text
-  events. Fixes VNC / remote console / VM targets, which ignore attached
-  Unicode text and typed every character as `a`. The input source is switched
-  to an ASCII layout while typing so IMEs don't intercept the keys, then
-  restored. Characters not on the layout fall back to Unicode with a warning.
-- "Remote console mode (VNC / VM)" toggle in the macOS app (settings + menu bar
-  menu) and in the tray menu; persisted alongside the other settings.
-- In-app updates for the macOS app: checks GitHub Releases on launch and every
-  24 hours (can be disabled), shows the release notes, downloads the universal
-  app archive, verifies its SHA-256, then replaces the bundle and relaunches.
-  "Check for Updates…" is available from the menu bar menu and Settings.
-- App icon.
+### 新增
+- **`--mode keycode`（远程控制台模式）**：按当前键盘布局逐字符按下真实键码
+  （需要时自动带 Shift / Option），而不是发送 Unicode 文本事件。修复了 VNC、
+  远程控制台、虚拟机窗口中**每个字符都被输入成 `a`** 的问题——这些环境只转发
+  物理键码、忽略附加的 Unicode 文本。发送期间会临时切换到 ASCII 输入源，避免
+  输入法截获按键，结束后恢复原输入法。键盘布局上没有的字符（中日文等）回退为
+  Unicode 方式并给出一次警告。
+- macOS 应用（设置窗口 + 菜单栏菜单）和托盘菜单中新增「远程控制台模式
+  （VNC / 虚拟机）」开关，与其他设置一同持久化。
+- **macOS 应用内更新**：启动时和每 24 小时检查一次 GitHub Releases（可关闭），
+  显示更新说明，下载通用版应用压缩包并校验 SHA-256，然后替换应用并重新启动。
+  菜单栏菜单和设置窗口均提供「检查更新…」。
+- 应用图标。
+- 应用内显示版本号（菜单栏标题行、主窗口头部、设置窗口）。
 
 ## [0.1.0] - 2026-08-07
 
-### Added
-- `--speed fast|normal|slow` typing speed presets as a friendlier alternative
-  to `--interval`.
-- Release workflow: tags build and attach prebuilt binaries for macOS
-  (Apple Silicon & Intel), Windows, and Linux with SHA-256 checksums.
-- Clipboard text reading via `arboard`; empty or non-text clipboard exits gracefully.
-- Keystroke sending via `enigo`: fast mode (batched `text()`) when `--interval` is 0,
-  per-character mode with configurable delay otherwise.
-- Newlines and tabs are sent as real Return/Tab key presses for better app compatibility.
-- Line endings are normalized to LF before typing (CRLF/CR from Windows clipboards
-  no longer produce double newlines).
-- On macOS, keyboard errors include a hint to grant the Accessibility permission.
-- Initial project scaffold: Cargo manifest, module layout (`cli`, `clipboard`, `typer`), README, MIT license.
-- Cross-platform CI (macOS / Windows / Linux) with fmt, clippy, build, and test.
+首个正式版本。已在 macOS 上完整验证（单次、热键、托盘、原生应用四种模式）；
+Windows 与 Linux 版本已通过 CI 构建，运行时验证待补。
 
-- On macOS, cliptype now detects a missing Accessibility permission up front and
-  exits with clear guidance, instead of appearing to succeed while the OS
-  silently discards every keystroke.
-- Resident hotkey mode (`--features hotkey`): `cliptype --hotkey [COMBO]` stays
-  running and types the current clipboard on every press (default combo
-  `ctrl+shift+v`). Waits for the hotkey's modifier keys to be released before
-  typing so the combo does not contaminate the output.
-- Status bar / tray mode (`--features tray`, macOS & Windows): `cliptype --tray`
-  shows a native status bar icon with the active hotkey, pause/resume, and
-  typing speed presets. Speed changes persist to a config file and are restored
-  on the next launch. Each platform's binary contains only its own UI code;
-  Linux builds don't include the tray.
+### 新增
+- 通过 `arboard` 读取剪贴板文本；剪贴板为空或非文本时优雅退出。
+- 通过 `enigo` 发送键盘输入：`--interval` 为 0 时走批量快速模式，否则按可配置
+  间隔逐字符发送。
+- 换行与 Tab 作为真实的 Return / Tab 按键发送，提升目标应用兼容性。
+- 输入前将换行统一为 LF（来自 Windows 剪贴板的 CRLF / CR 不再产生双倍换行）。
+- `--speed fast|normal|slow` 打字速度预设，作为 `--interval` 的友好替代。
+- **常驻热键模式**（`--features hotkey`）：`cliptype --hotkey [组合键]` 常驻运行，
+  每次按下热键就输入当前剪贴板内容（默认 `ctrl+shift+v`）。会等待热键的修饰键
+  全部松开后再输入，组合键本身不会污染输出。
+- **状态栏 / 托盘模式**（`--features tray`，macOS 和 Windows）：`cliptype --tray`
+  显示原生状态栏图标，包含当前热键、暂停 / 恢复、打字速度预设。速度变更会写入
+  配置文件并在下次启动时恢复。每个平台的二进制只包含自己平台的 UI 代码；
+  Linux 构建不含托盘。
+- **macOS 原生应用**：主窗口 + 常驻菜单栏，界面支持中文 / 英文 / 日文三语。
+- macOS 上未授予辅助功能权限时，程序会提前检测并给出清晰的引导后退出，而不是
+  看似成功、实际每个按键都被系统静默丢弃。
+- 发布流程：打 tag 自动构建并附加预编译产物——macOS 应用（通用版）以及 macOS
+  （Apple Silicon 和 Intel）、Windows、Linux 的 CLI，每个都带 SHA-256 校验文件。
+- 跨平台 CI（macOS / Windows / Linux）：fmt、clippy、构建、测试。
 
-### Changed
-- All user-facing CLI messages and `--help` text are now in English.
+### 变更
+- 所有面向用户的 CLI 提示和 `--help` 文本统一为英文。
 
-### Fixed
-- Trailing characters could be lost when the process exited before the last
-  keyboard events were delivered; cliptype now waits briefly before exiting.
-- Per-character mode (`--interval > 0`) was intercepted by active input methods
-  (IMEs), mangling CJK text and dropping emoji; it now uses the same
-  IME-transparent event mechanism as the fast path.
+### 修复
+- 进程在最后一批键盘事件送达前退出会导致尾部字符丢失；现在退出前会短暂等待。
+- 逐字符模式（`--interval > 0`）会被输入法截获，导致中日文乱码、emoji 丢失；
+  现在改用与快速模式相同的、不受输入法影响的事件机制。
