@@ -1,6 +1,6 @@
 [package]
 name = "cliptype"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Type the contents of your clipboard as simulated keystrokes. Cross-platform (macOS, Windows, Linux)."
 license = "MIT"
