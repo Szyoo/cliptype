@@ -24,3 +24,8 @@
 /* メインウィンドウ */
 "Copy text, focus the target field, press %@." = "复制文本，聚焦目标输入框，按 %@。";
 "Paused" = "已暂停";
+
+/* 互換モード */
+"Remote console mode (VNC / VM)" = "远程控制台模式（VNC / 虚拟机）";
+"Compatibility" = "兼容性";
+"Presses real key codes instead of sending Unicode text. Turn this on for VNC, remote consoles and VM windows, which otherwise receive every character as \"a\". Only characters on your keyboard layout can be typed this way." = "按下真实键码而不是发送 Unicode 文本。在 VNC、远程控制台和虚拟机窗口中请开启此项，否则它们收到的每个字符都会变成 \"a\"。此模式只能输入当前键盘布局上存在的字符。";

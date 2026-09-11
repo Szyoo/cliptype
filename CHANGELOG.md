@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- `--mode keycode`: press real key codes per character (looked up from the
+  current keyboard layout, with Shift/Option as needed) instead of Unicode text
+  events. Fixes VNC / remote console / VM targets, which ignore attached
+  Unicode text and typed every character as `a`. The input source is switched
+  to an ASCII layout while typing so IMEs don't intercept the keys, then
+  restored. Characters not on the layout fall back to Unicode with a warning.
+- "Remote console mode (VNC / VM)" toggle in the macOS app (settings + menu bar
+  menu) and in the tray menu; persisted alongside the other settings.
+- App icon.
+
 ## [0.1.0] - 2026-08-07
 
 ### Added

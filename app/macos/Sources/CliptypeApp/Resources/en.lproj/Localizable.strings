@@ -18,3 +18,6 @@
 "Open System Settings…" = "Open System Settings…";
 "Copy text, focus the target field, press %@." = "Copy text, focus the target field, press %@.";
 "Paused" = "Paused";
+"Remote console mode (VNC / VM)" = "Remote console mode (VNC / VM)";
+"Compatibility" = "Compatibility";
+"Presses real key codes instead of sending Unicode text. Turn this on for VNC, remote consoles and VM windows, which otherwise receive every character as \"a\". Only characters on your keyboard layout can be typed this way." = "Presses real key codes instead of sending Unicode text. Turn this on for VNC, remote consoles and VM windows, which otherwise receive every character as \"a\". Only characters on your keyboard layout can be typed this way.";

@@ -37,6 +37,15 @@ struct SettingsView: View {
             }
 
             Section {
+                Toggle(L("Remote console mode (VNC / VM)"), isOn: $state.keycodeMode)
+                Text(L("Presses real key codes instead of sending Unicode text. Turn this on for VNC, remote consoles and VM windows, which otherwise receive every character as \"a\". Only characters on your keyboard layout can be typed this way."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } header: {
+                Text(L("Compatibility"))
+            }
+
+            Section {
                 if state.axTrusted {
                     Label(L("Accessibility permission granted"), systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)

@@ -7,6 +7,8 @@ mod clipboard;
 mod config;
 #[cfg(feature = "hotkey")]
 mod hotkey;
+#[cfg(target_os = "macos")]
+mod keymap;
 #[cfg(all(feature = "tray", any(target_os = "macos", target_os = "windows")))]
 mod tray;
 mod typer;
@@ -26,6 +28,7 @@ fn main() -> Result<()> {
         return tray::run(
             combo,
             Duration::from_millis(args.effective_interval_ms()),
+            args.input_mode(),
             args.dry_run,
         );
     }
@@ -36,6 +39,7 @@ fn main() -> Result<()> {
         return hotkey::run(
             combo,
             Duration::from_millis(args.effective_interval_ms()),
+            args.input_mode(),
             args.dry_run,
         );
     }
@@ -67,6 +71,7 @@ fn main() -> Result<()> {
     // キーストローク送信
     let opts = typer::TypeOptions {
         interval: Duration::from_millis(args.effective_interval_ms()),
+        mode: args.input_mode(),
     };
     typer::type_text(&text, &opts)?;
 

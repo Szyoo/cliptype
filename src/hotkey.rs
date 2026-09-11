@@ -15,7 +15,7 @@ use std::time::Duration;
 use crate::{clipboard, typer};
 
 /// 常駐モードのエントリーポイント。成功時は戻らない（Ctrl+C で終了）。
-pub fn run(combo: &str, interval: Duration, dry_run: bool) -> Result<()> {
+pub fn run(combo: &str, interval: Duration, mode: typer::InputMode, dry_run: bool) -> Result<()> {
     // 常駐を始める前に権限を確認して早期に失敗させる
     typer::ensure_permission()?;
 
@@ -37,7 +37,7 @@ pub fn run(combo: &str, interval: Duration, dry_run: bool) -> Result<()> {
                 continue;
             }
             // 1 回の失敗で常駐を落とさない。エラーにクリップボード内容は含めない。
-            if let Err(err) = handle_press(interval, dry_run) {
+            if let Err(err) = handle_press(interval, mode, dry_run) {
                 eprintln!("error: {err:#}");
             }
         }
@@ -49,7 +49,7 @@ pub fn run(combo: &str, interval: Duration, dry_run: bool) -> Result<()> {
 }
 
 /// ホットキー押下 1 回分の処理（トレイモードからも使う）。
-pub fn handle_press(interval: Duration, dry_run: bool) -> Result<()> {
+pub fn handle_press(interval: Duration, mode: typer::InputMode, dry_run: bool) -> Result<()> {
     let text = clipboard::read_text().context("failed to read the clipboard")?;
     if text.is_empty() {
         eprintln!("The clipboard is empty or does not contain text.");
@@ -66,7 +66,7 @@ pub fn handle_press(interval: Duration, dry_run: bool) -> Result<()> {
     // 物理修飾キーの状態が合成イベントに混ざるため、離されるまで待つ
     wait_modifiers_released();
 
-    typer::type_text(&text, &typer::TypeOptions { interval })
+    typer::type_text(&text, &typer::TypeOptions { interval, mode })
 }
 
 /// macOS: HID システム状態の修飾キーフラグが消えるまで待つ（上限 2 秒）。

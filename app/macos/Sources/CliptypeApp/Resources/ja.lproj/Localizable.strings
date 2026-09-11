@@ -24,3 +24,8 @@
 /* メインウィンドウ */
 "Copy text, focus the target field, press %@." = "テキストをコピーし、対象の入力欄にフォーカスして %@ を押してください。";
 "Paused" = "一時停止中";
+
+/* 互換モード */
+"Remote console mode (VNC / VM)" = "リモートコンソールモード（VNC / VM）";
+"Compatibility" = "互換性";
+"Presses real key codes instead of sending Unicode text. Turn this on for VNC, remote consoles and VM windows, which otherwise receive every character as \"a\". Only characters on your keyboard layout can be typed this way." = "Unicode テキストではなく実際のキーコードを押します。VNC・リモートコンソール・VM のウィンドウでは有効にしてください（無効だと全文字が \"a\" になります）。この方式で入力できるのはキーボード配列上にある文字だけです。";

@@ -45,6 +45,8 @@ final class AppState: ObservableObject {
     ]
 
     @AppStorage("intervalMs") var intervalMs: Int = 0
+    /// 実キーコードモード（VNC / リモートコンソール / VM 向け）
+    @AppStorage("keycodeMode") var keycodeMode: Bool = false
     @AppStorage("hotkeyPresetId") private var hotkeyPresetId: String = "ctrl-shift-v"
 
     @Published var isPaused = false
@@ -110,9 +112,10 @@ final class AppState: ObservableObject {
         NSLog("cliptype: hotkey pressed (paused=\(isPaused))")
         guard !isPaused else { return }
         let interval = intervalMs
+        let keycode = keycodeMode
         // 数百 ms かかるためメインスレッドを塞がない
         Task.detached(priority: .userInitiated) {
-            await Engine.typeClipboard(intervalMs: interval)
+            await Engine.typeClipboard(intervalMs: interval, keycodeMode: keycode)
         }
     }
 }

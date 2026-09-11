@@ -25,6 +25,12 @@ pub struct Args {
     #[arg(short, long, value_enum, conflicts_with = "interval")]
     pub speed: Option<Speed>,
 
+    /// How keystrokes are delivered. "unicode" (default) types any character and
+    /// is IME-safe; "keycode" presses real key codes for VNC / remote consoles /
+    /// VMs, which otherwise turn every character into "a"
+    #[arg(short, long, value_enum, default_value_t = Mode::Unicode)]
+    pub mode: Mode,
+
     /// Print what would be typed instead of typing it
     #[arg(long)]
     pub dry_run: bool,
@@ -69,10 +75,34 @@ impl Speed {
     }
 }
 
+/// キーストロークの送信方式（typer::InputMode の CLI 表現）。
+#[derive(ValueEnum, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Mode {
+    /// Unicode text events: any character, IME-safe (best for local apps)
+    Unicode,
+    /// Real key codes per character: for VNC / remote consoles / VMs; limited to
+    /// characters on the current keyboard layout
+    Keycode,
+}
+
+impl From<Mode> for crate::typer::InputMode {
+    fn from(mode: Mode) -> Self {
+        match mode {
+            Mode::Unicode => Self::Unicode,
+            Mode::Keycode => Self::Keycode,
+        }
+    }
+}
+
 impl Args {
     /// --speed / --interval を解決した実効の打鍵間隔（ミリ秒）。
     pub fn effective_interval_ms(&self) -> u64 {
         self.speed.map(Speed::interval_ms).unwrap_or(self.interval)
+    }
+
+    /// typer に渡す送信方式。
+    pub fn input_mode(&self) -> crate::typer::InputMode {
+        self.mode.into()
     }
 }
 
@@ -95,6 +125,19 @@ mod tests {
         assert_eq!(args.effective_interval_ms(), 7);
         let args = Args::parse_from(["cliptype"]);
         assert_eq!(args.effective_interval_ms(), 0);
+    }
+
+    #[test]
+    fn mode_defaults_to_unicode_and_parses_keycode() {
+        use crate::typer::InputMode;
+        assert_eq!(
+            Args::parse_from(["cliptype"]).input_mode(),
+            InputMode::Unicode
+        );
+        assert_eq!(
+            Args::parse_from(["cliptype", "--mode", "keycode"]).input_mode(),
+            InputMode::Keycode
+        );
     }
 
     #[test]

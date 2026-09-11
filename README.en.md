@@ -100,6 +100,7 @@ Options:
   -d, --delay <MS>      Delay before typing starts, in ms  [default: 2000]
   -i, --interval <MS>   Delay between keystrokes, in ms     [default: 0]
   -s, --speed <SPEED>   Typing speed preset  [possible values: fast, normal, slow]
+  -m, --mode <MODE>     Delivery mode  [possible values: unicode, keycode]  [default: unicode]
       --dry-run         Print what would be typed instead of typing it
   -h, --help            Print help
   -V, --version         Print version
@@ -107,6 +108,19 @@ Options:
 
 `--speed` is a friendlier alternative to `--interval` (fast = no delay,
 normal = 20 ms, slow = 50 ms — for apps that drop keys at full speed).
+
+`--mode` selects how keystrokes are delivered:
+
+- `unicode` (default): Unicode text events — any character, immune to input
+  methods, best for local apps.
+- `keycode`: presses **real key codes** per character according to your current
+  keyboard layout. **Required for VNC, remote consoles and VM windows** — they
+  forward physical key codes and ignore attached Unicode text, so every
+  character would otherwise arrive as `a`. Limited to characters on your layout
+  (CJK etc. fall back to Unicode with a warning); the input source is switched
+  to an ASCII layout while typing and restored afterwards.
+  In the macOS app / tray menu this is the "Remote console mode (VNC / VM)"
+  toggle.
 
 ```sh
 # Copy some text, then:

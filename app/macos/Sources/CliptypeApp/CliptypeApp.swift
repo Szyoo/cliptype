@@ -78,6 +78,8 @@ struct MenuContent: View {
             }
         }
 
+        Toggle(L("Remote console mode (VNC / VM)"), isOn: $state.keycodeMode)
+
         Divider()
 
         SettingsLink {

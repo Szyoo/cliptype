@@ -6,10 +6,24 @@ use enigo::{Direction::Click, Enigo, Key, Keyboard, Settings};
 use std::thread;
 use std::time::Duration;
 
+/// キーストロークの送り方。
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum InputMode {
+    /// Unicode 文字列を添付したイベント。任意の文字を打てて IME にも横取り
+    /// されないが、キーコードが 0 固定なので VNC 等では全文字 "a" になる。
+    #[default]
+    Unicode,
+    /// 現在のキーボード配列で実キーコード + 修飾キーを押す。VNC / リモート
+    /// コンソール / VM 向け。配列に無い文字（CJK 等）は Unicode 方式へ退避。
+    Keycode,
+}
+
 /// 送信時の挙動を制御する設定。
 pub struct TypeOptions {
     /// 各文字の入力間隔。
     pub interval: Duration,
+    /// 送信方式。
+    pub mode: InputMode,
 }
 
 /// `text` をキーストロークとして送信する。
@@ -28,10 +42,10 @@ pub fn type_text(text: &str, opts: &TypeOptions) -> Result<()> {
         )
     })?;
 
-    let result = if opts.interval.is_zero() {
-        type_fast(&mut enigo, &text)
-    } else {
-        type_per_char(&mut enigo, &text, opts.interval)
+    let result = match opts.mode {
+        InputMode::Unicode if opts.interval.is_zero() => type_fast(&mut enigo, &text),
+        InputMode::Unicode => type_per_char(&mut enigo, &text, opts.interval),
+        InputMode::Keycode => type_keycodes(&mut enigo, &text, opts.interval),
     };
 
     // 送信直後にプロセスが終了すると、未配送のイベントが失われて
@@ -65,6 +79,72 @@ fn type_per_char(enigo: &mut Enigo, text: &str, interval: Duration) -> Result<()
         match ch {
             '\n' | '\t' => send_special(enigo, ch)?,
             _ => enigo.text(ch.encode_utf8(&mut buf)).map_err(input_err)?,
+        }
+        thread::sleep(interval);
+    }
+    Ok(())
+}
+
+/// 実キーコードモード（macOS）: 現在の配列で文字ごとにキーコード + 修飾キーを
+/// 引いて実キー押下として送る。VNC / リモートコンソールは添付 Unicode を無視して
+/// キーコードだけを転送するため、このモードでないと全文字が "a" になる。
+/// 送信中は IME を避けて ASCII 配列へ一時切替する（終了時に復元）。
+#[cfg(target_os = "macos")]
+fn type_keycodes(enigo: &mut Enigo, text: &str, interval: Duration) -> Result<()> {
+    use crate::keymap::{AsciiInputSourceGuard, LayoutMap};
+    use enigo::Direction::{Press, Release};
+
+    let layout = LayoutMap::current()?;
+    let _ascii = AsciiInputSourceGuard::activate();
+    let mut warned = false;
+    let mut buf = [0u8; 4];
+
+    for ch in text.chars() {
+        match ch {
+            '\n' | '\t' => send_special(enigo, ch)?,
+            _ => match layout.lookup(ch) {
+                Some(stroke) => {
+                    if stroke.shift {
+                        enigo.key(Key::Shift, Press).map_err(input_err)?;
+                    }
+                    if stroke.option {
+                        enigo.key(Key::Alt, Press).map_err(input_err)?;
+                    }
+                    let sent = enigo.raw(stroke.keycode, Click).map_err(input_err);
+                    // エラーでも修飾キーは必ず離す（押しっぱなし事故を防ぐ）
+                    if stroke.option {
+                        enigo.key(Key::Alt, Release).map_err(input_err)?;
+                    }
+                    if stroke.shift {
+                        enigo.key(Key::Shift, Release).map_err(input_err)?;
+                    }
+                    sent?;
+                }
+                None => {
+                    if !warned {
+                        eprintln!(
+                            "warning: some characters are not on the current keyboard layout \
+                             and were sent as unicode text; remote consoles may not receive them"
+                        );
+                        warned = true;
+                    }
+                    enigo.text(ch.encode_utf8(&mut buf)).map_err(input_err)?;
+                }
+            },
+        }
+        thread::sleep(interval);
+    }
+    Ok(())
+}
+
+/// 実キーコードモード（macOS 以外）: enigo の `Key::Unicode` に任せる
+/// （Windows は VkKeyScan で配列に応じたキーコード + Shift を解決する）。
+#[cfg(not(target_os = "macos"))]
+fn type_keycodes(enigo: &mut Enigo, text: &str, interval: Duration) -> Result<()> {
+    for ch in text.chars() {
+        match ch {
+            '\n' | '\t' => send_special(enigo, ch)?,
+            _ => enigo.key(Key::Unicode(ch), Click).map_err(input_err)?,
         }
         thread::sleep(interval);
     }

@@ -27,12 +27,17 @@ enum Engine {
     }
 
     /// ホットキーの修飾キーが離されるのを待ってから、クリップボードを鍵入する。
-    static func typeClipboard(intervalMs: Int) async {
+    static func typeClipboard(intervalMs: Int, keycodeMode: Bool) async {
         waitModifiersReleased()
 
         let process = Process()
         process.executableURL = binaryURL
-        process.arguments = ["--delay", "0", "--interval", String(intervalMs)]
+        process.arguments = [
+            "--delay", "0",
+            "--interval", String(intervalMs),
+            // VNC / リモートコンソールは添付 Unicode を無視するため実キーコードで送る
+            "--mode", keycodeMode ? "keycode" : "unicode",
+        ]
         // クリップボード内容を含みうる出力は捨てる（ログに残さない）
         process.standardOutput = FileHandle.nullDevice
         let stderrPipe = Pipe()

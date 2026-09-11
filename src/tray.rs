@@ -36,21 +36,30 @@ enum UserEvent {
 }
 
 /// トレイモードのエントリーポイント。成功時は戻らない（Quit メニューで終了）。
-pub fn run(combo: &str, cli_interval: Duration, dry_run: bool) -> Result<()> {
+pub fn run(
+    combo: &str,
+    cli_interval: Duration,
+    mode: typer::InputMode,
+    dry_run: bool,
+) -> Result<()> {
     // 常駐を始める前に権限を確認して早期に失敗させる
     typer::ensure_permission()?;
 
     // interval は「CLI で明示された値 > 保存された設定 > 0」の順で決める。
     // clap のデフォルト（0）と明示指定の 0 は区別できないが、メニューでいつでも
     // Fastest に戻せるため実害はない。
+    let saved = config::load();
     let initial_interval = if cli_interval.is_zero() {
-        config::load().interval_ms
+        saved.interval_ms
     } else {
         cli_interval.as_millis() as u64
     };
+    // 送信方式も同様: CLI で keycode が明示されていればそれ、なければ保存値
+    let initial_keycode = mode == typer::InputMode::Keycode || saved.keycode_mode;
 
     let paused = Arc::new(AtomicBool::new(false));
     let interval_ms = Arc::new(AtomicU64::new(initial_interval));
+    let keycode_mode = Arc::new(AtomicBool::new(initial_keycode));
 
     // ホットキー登録。manager はプロセスが生きている間ずっと保持する必要がある
     let hotkey: HotKey = combo
@@ -66,6 +75,7 @@ pub fn run(combo: &str, cli_interval: Duration, dry_run: bool) -> Result<()> {
     {
         let paused = paused.clone();
         let interval_ms = interval_ms.clone();
+        let keycode_mode = keycode_mode.clone();
         let receiver = GlobalHotKeyEvent::receiver();
         thread::spawn(move || {
             for event in receiver.iter() {
@@ -73,8 +83,13 @@ pub fn run(combo: &str, cli_interval: Duration, dry_run: bool) -> Result<()> {
                     continue;
                 }
                 let interval = Duration::from_millis(interval_ms.load(Ordering::Relaxed));
+                let mode = if keycode_mode.load(Ordering::Relaxed) {
+                    typer::InputMode::Keycode
+                } else {
+                    typer::InputMode::Unicode
+                };
                 // 1 回の失敗で常駐を落とさない。エラーにクリップボード内容は含めない。
-                if let Err(err) = hotkey::handle_press(interval, dry_run) {
+                if let Err(err) = hotkey::handle_press(interval, mode, dry_run) {
                     eprintln!("error: {err:#}");
                 }
             }
@@ -99,6 +114,13 @@ pub fn run(combo: &str, cli_interval: Duration, dry_run: bool) -> Result<()> {
     if let Some(custom) = &custom_item {
         speed_menu.append(custom)?;
     }
+    // VNC / リモートコンソール向け: 実キーコードで送る
+    let keycode_item = CheckMenuItem::new(
+        "Remote console mode (VNC / VM)",
+        true,
+        initial_keycode,
+        None,
+    );
     let quit_item = MenuItem::new("Quit cliptype", true, None);
     let sep1 = PredefinedMenuItem::separator();
     let sep2 = PredefinedMenuItem::separator();
@@ -107,6 +129,7 @@ pub fn run(combo: &str, cli_interval: Duration, dry_run: bool) -> Result<()> {
         &sep1,
         &pause_item,
         &speed_menu,
+        &keycode_item,
         &sep2,
         &quit_item,
     ])?;
@@ -129,6 +152,7 @@ pub fn run(combo: &str, cli_interval: Duration, dry_run: bool) -> Result<()> {
     println!("cliptype is resident in the status bar — press {combo} to type the clipboard");
 
     let pause_id = pause_item.id().clone();
+    let keycode_id = keycode_item.id().clone();
     let quit_id = quit_item.id().clone();
     let speed_ids: Vec<_> = speed_items.iter().map(|i| i.id().clone()).collect();
     let mut tray: Option<TrayIcon> = None;
@@ -153,6 +177,16 @@ pub fn run(combo: &str, cli_interval: Duration, dry_run: bool) -> Result<()> {
                 } else if *id == pause_id {
                     // CheckMenuItem はクリックで自動トグルされるので状態を読むだけ
                     paused.store(pause_item.is_checked(), Ordering::Relaxed);
+                } else if *id == keycode_id {
+                    let on = keycode_item.is_checked();
+                    keycode_mode.store(on, Ordering::Relaxed);
+                    let cfg = config::Config {
+                        interval_ms: interval_ms.load(Ordering::Relaxed),
+                        keycode_mode: on,
+                    };
+                    if let Err(err) = config::save(&cfg) {
+                        eprintln!("warning: failed to save settings: {err}");
+                    }
                 } else if let Some(idx) = speed_ids.iter().position(|s| s == id) {
                     let ms = SPEED_PRESETS[idx].1;
                     interval_ms.store(ms, Ordering::Relaxed);
@@ -163,7 +197,11 @@ pub fn run(combo: &str, cli_interval: Duration, dry_run: bool) -> Result<()> {
                         custom.set_checked(false);
                     }
                     // 保存失敗で常駐は止めない（次回起動に引き継がれないだけ）
-                    if let Err(err) = config::save(&config::Config { interval_ms: ms }) {
+                    let cfg = config::Config {
+                        interval_ms: ms,
+                        keycode_mode: keycode_mode.load(Ordering::Relaxed),
+                    };
+                    if let Err(err) = config::save(&cfg) {
                         eprintln!("warning: failed to save settings: {err}");
                     }
                 }

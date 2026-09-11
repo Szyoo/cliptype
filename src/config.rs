@@ -5,11 +5,13 @@
 use std::fs;
 use std::path::PathBuf;
 
-/// 保存対象の設定。今は打鍵間隔のみ。
+/// 保存対象の設定。
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Config {
     /// 各キーストローク間の間隔（ミリ秒）。0 = 最速。
     pub interval_ms: u64,
+    /// 実キーコードモード（VNC / リモートコンソール向け）。
+    pub keycode_mode: bool,
 }
 
 /// 設定ファイルを読む。無い・壊れている場合はデフォルトに黙って戻る
@@ -32,8 +34,8 @@ pub fn save(config: &Config) -> std::io::Result<()> {
     fs::write(
         path,
         format!(
-            "# cliptype settings — written by the tray UI\ninterval_ms = {}\n",
-            config.interval_ms
+            "# cliptype settings — written by the tray UI\ninterval_ms = {}\nkeycode_mode = {}\n",
+            config.interval_ms, config.keycode_mode
         ),
     )
 }
@@ -58,10 +60,18 @@ fn parse(s: &str) -> Config {
             continue;
         }
         if let Some((key, value)) = line.split_once('=') {
-            if key.trim() == "interval_ms" {
-                if let Ok(n) = value.trim().parse() {
-                    config.interval_ms = n;
+            match key.trim() {
+                "interval_ms" => {
+                    if let Ok(n) = value.trim().parse() {
+                        config.interval_ms = n;
+                    }
                 }
+                "keycode_mode" => {
+                    if let Ok(b) = value.trim().parse() {
+                        config.keycode_mode = b;
+                    }
+                }
+                _ => {}
             }
         }
     }
@@ -76,6 +86,13 @@ mod tests {
     fn parse_reads_interval() {
         let c = parse("# comment\ninterval_ms = 20\n");
         assert_eq!(c.interval_ms, 20);
+    }
+
+    #[test]
+    fn parse_reads_keycode_mode() {
+        let c = parse("interval_ms = 0\nkeycode_mode = true\n");
+        assert!(c.keycode_mode);
+        assert!(!parse("keycode_mode = maybe\n").keycode_mode);
     }
 
     #[test]
