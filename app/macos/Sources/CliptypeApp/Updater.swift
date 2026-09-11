@@ -307,14 +307,27 @@ final class Updater: ObservableObject {
         }
     }
 
+    /// アプリが TCC 保護フォルダ（書類 / デスクトップ / ダウンロード）内にあるか。
+    /// そこでは差し替え時に macOS が「フォルダへのアクセス」を尋ね、許可されるまで
+    /// ヘルパーの rm/mv がブロックされる（実測）。/Applications では起きない。
+    private static var isInProtectedFolder: Bool {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        let path = Bundle.main.bundleURL.path
+        return ["Documents", "Desktop", "Downloads"].contains { path.hasPrefix("\(home)/\($0)/") }
+    }
+
     private func presentReadyAlert(_ release: Release) {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
         alert.messageText = L("Ready to install")
-        alert.informativeText = L(
+        var info = L(
             "Cliptype will quit and relaunch as version %@. Because updates are not developer-signed yet, macOS will ask for the Accessibility permission again after the relaunch.",
             release.version
         )
+        if Self.isInProtectedFolder {
+            info += "\n\n" + L("Cliptype is in a protected folder (Documents, Desktop or Downloads), so macOS may also ask for permission to access that folder — click Allow, or the update will stall. Keeping Cliptype in the Applications folder avoids this.")
+        }
+        alert.informativeText = info
         alert.addButton(withTitle: L("Install and Relaunch"))
         alert.addButton(withTitle: L("Cancel"))
         if alert.runModal() == .alertFirstButtonReturn {

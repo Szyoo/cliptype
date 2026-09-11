@@ -49,3 +49,4 @@
 "The downloaded file failed verification." = "The downloaded file failed verification.";
 "The application folder is not writable. Move Cliptype to your Applications folder and try again." = "The application folder is not writable. Move Cliptype to your Applications folder and try again.";
 "The downloaded archive could not be extracted." = "The downloaded archive could not be extracted.";
+"Cliptype is in a protected folder (Documents, Desktop or Downloads), so macOS may also ask for permission to access that folder — click Allow, or the update will stall. Keeping Cliptype in the Applications folder avoids this." = "Cliptype is in a protected folder (Documents, Desktop or Downloads), so macOS may also ask for permission to access that folder — click Allow, or the update will stall. Keeping Cliptype in the Applications folder avoids this.";

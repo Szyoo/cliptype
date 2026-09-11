@@ -59,3 +59,4 @@
 "The downloaded file failed verification." = "ダウンロードしたファイルの検証に失敗しました。";
 "The application folder is not writable. Move Cliptype to your Applications folder and try again." = "アプリのあるフォルダに書き込めません。Cliptype を「アプリケーション」フォルダに移動してから再試行してください。";
 "The downloaded archive could not be extracted." = "ダウンロードしたアーカイブを展開できませんでした。";
+"Cliptype is in a protected folder (Documents, Desktop or Downloads), so macOS may also ask for permission to access that folder — click Allow, or the update will stall. Keeping Cliptype in the Applications folder avoids this." = "Cliptype は保護されたフォルダ（書類・デスクトップ・ダウンロード）にあるため、macOS がそのフォルダへのアクセス許可を追加で求めることがあります。「許可」を押してください（押さないと更新が止まります）。Cliptype を「アプリケーション」フォルダに置けばこの確認は不要です。";

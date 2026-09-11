@@ -59,3 +59,4 @@
 "The downloaded file failed verification." = "下载的文件校验失败。";
 "The application folder is not writable. Move Cliptype to your Applications folder and try again." = "应用所在文件夹不可写。请把 Cliptype 移到「应用程序」文件夹后重试。";
 "The downloaded archive could not be extracted." = "无法解压下载的文件。";
+"Cliptype is in a protected folder (Documents, Desktop or Downloads), so macOS may also ask for permission to access that folder — click Allow, or the update will stall. Keeping Cliptype in the Applications folder avoids this." = "Cliptype 位于受保护的文件夹（文稿、桌面或下载）中，macOS 可能会额外询问是否允许访问该文件夹——请点「允许」，否则更新会卡住。把 Cliptype 放在「应用程序」文件夹可以避免这一步。";
