@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   restored. Characters not on the layout fall back to Unicode with a warning.
 - "Remote console mode (VNC / VM)" toggle in the macOS app (settings + menu bar
   menu) and in the tray menu; persisted alongside the other settings.
+- In-app updates for the macOS app: checks GitHub Releases on launch and every
+  24 hours (can be disabled), shows the release notes, downloads the universal
+  app archive, verifies its SHA-256, then replaces the bundle and relaunches.
+  "Check for Updates…" is available from the menu bar menu and Settings.
 - App icon.
 
 ## [0.1.0] - 2026-08-07

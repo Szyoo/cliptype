@@ -20,8 +20,13 @@ struct MainView: View {
                 .font(.system(size: 32))
                 .foregroundStyle(.tint)
             VStack(alignment: .leading, spacing: 2) {
-                Text("Cliptype")
-                    .font(.title2.bold())
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("Cliptype")
+                        .font(.title2.bold())
+                    Text("v\(Updater.currentVersion)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 Text(L("Copy text, focus the target field, press %@.", state.hotkeyPreset.label))
                     .font(.caption)
                     .foregroundStyle(.secondary)

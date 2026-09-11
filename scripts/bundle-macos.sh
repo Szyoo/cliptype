@@ -6,7 +6,8 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 APP_DIR="$REPO/dist/Cliptype.app"
-VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' "$REPO/Cargo.toml" | head -1)"
+# APP_VERSION で上書き可能（アップデート機能のテストで古いバージョンを装うため）
+VERSION="${APP_VERSION:-$(sed -n 's/^version = "\(.*\)"/\1/p' "$REPO/Cargo.toml" | head -1)}"
 
 # BUILD_UNIVERSAL=1 で arm64 + x86_64 のユニバーサルバイナリを組む（リリース用）
 if [ "${BUILD_UNIVERSAL:-0}" = "1" ]; then

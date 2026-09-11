@@ -29,3 +29,33 @@
 "Remote console mode (VNC / VM)" = "リモートコンソールモード（VNC / VM）";
 "Compatibility" = "互換性";
 "Presses real key codes instead of sending Unicode text. Turn this on for VNC, remote consoles and VM windows, which otherwise receive every character as \"a\". Only characters on your keyboard layout can be typed this way." = "Unicode テキストではなく実際のキーコードを押します。VNC・リモートコンソール・VM のウィンドウでは有効にしてください（無効だと全文字が \"a\" になります）。この方式で入力できるのはキーボード配列上にある文字だけです。";
+
+/* アップデート */
+"Check for Updates…" = "アップデートを確認…";
+"Updates" = "アップデート";
+"Check for updates automatically" = "アップデートを自動的に確認";
+"Check Now…" = "今すぐ確認…";
+"Version %@" = "バージョン %@";
+"Checking…" = "確認中…";
+"Up to date (last checked %@)" = "最新です（最終確認 %@）";
+"Version %@ is available" = "バージョン %@ が利用可能";
+"Downloading…" = "ダウンロード中…";
+"Version %@ is ready to install" = "バージョン %@ をインストールできます";
+"Update check failed: %@" = "アップデートの確認に失敗: %@";
+"Cliptype %@ is available" = "Cliptype %@ が利用可能です";
+"You have %@. Release notes:\n\n%@" = "現在のバージョンは %@ です。リリースノート:\n\n%@";
+"Download and Install" = "ダウンロードしてインストール";
+"Later" = "後で";
+"Skip This Version" = "このバージョンをスキップ";
+"Ready to install" = "インストールの準備ができました";
+"Cliptype will quit and relaunch as version %@. Because updates are not developer-signed yet, macOS will ask for the Accessibility permission again after the relaunch." = "Cliptype を終了し、バージョン %@ として再起動します。アップデートはまだ開発者署名されていないため、再起動後に macOS がアクセシビリティ権限を再度求めます。";
+"Install and Relaunch" = "インストールして再起動";
+"Cancel" = "キャンセル";
+"You're up to date" = "最新の状態です";
+"Cliptype %@ is the latest version." = "Cliptype %@ は最新バージョンです。";
+"Update failed" = "アップデートに失敗しました";
+"No macOS app package was found in the latest release." = "最新リリースに macOS アプリのパッケージが見つかりません。";
+"GitHub returned an unexpected response." = "GitHub から予期しない応答が返されました。";
+"The downloaded file failed verification." = "ダウンロードしたファイルの検証に失敗しました。";
+"The application folder is not writable. Move Cliptype to your Applications folder and try again." = "アプリのあるフォルダに書き込めません。Cliptype を「アプリケーション」フォルダに移動してから再試行してください。";
+"The downloaded archive could not be extracted." = "ダウンロードしたアーカイブを展開できませんでした。";

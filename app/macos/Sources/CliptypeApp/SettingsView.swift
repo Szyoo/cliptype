@@ -5,6 +5,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var state: AppState
+    @ObservedObject private var updater = Updater.shared
 
     var body: some View {
         Form {
@@ -61,6 +62,31 @@ struct SettingsView: View {
                 }
             } header: {
                 Text(L("Permissions"))
+            }
+
+            Section {
+                Toggle(
+                    L("Check for updates automatically"),
+                    isOn: Binding(
+                        get: { updater.autoCheckEnabled },
+                        set: { updater.autoCheckEnabled = $0 }
+                    )
+                )
+                HStack {
+                    Button(L("Check Now…")) {
+                        Task { @MainActor in await updater.check(userInitiated: true) }
+                    }
+                    .disabled(updater.status == .checking || updater.status == .downloading)
+                    Text(updater.statusDescription)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+                Text(L("Version %@", Updater.currentVersion))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } header: {
+                Text(L("Updates"))
             }
         }
         .formStyle(.grouped)

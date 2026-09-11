@@ -29,3 +29,33 @@
 "Remote console mode (VNC / VM)" = "远程控制台模式（VNC / 虚拟机）";
 "Compatibility" = "兼容性";
 "Presses real key codes instead of sending Unicode text. Turn this on for VNC, remote consoles and VM windows, which otherwise receive every character as \"a\". Only characters on your keyboard layout can be typed this way." = "按下真实键码而不是发送 Unicode 文本。在 VNC、远程控制台和虚拟机窗口中请开启此项，否则它们收到的每个字符都会变成 \"a\"。此模式只能输入当前键盘布局上存在的字符。";
+
+/* アップデート */
+"Check for Updates…" = "检查更新…";
+"Updates" = "更新";
+"Check for updates automatically" = "自动检查更新";
+"Check Now…" = "立即检查…";
+"Version %@" = "版本 %@";
+"Checking…" = "正在检查…";
+"Up to date (last checked %@)" = "已是最新（上次检查 %@）";
+"Version %@ is available" = "有新版本 %@";
+"Downloading…" = "正在下载…";
+"Version %@ is ready to install" = "版本 %@ 已就绪，可以安装";
+"Update check failed: %@" = "检查更新失败：%@";
+"Cliptype %@ is available" = "Cliptype %@ 已发布";
+"You have %@. Release notes:\n\n%@" = "当前版本 %@。更新说明：\n\n%@";
+"Download and Install" = "下载并安装";
+"Later" = "以后再说";
+"Skip This Version" = "跳过此版本";
+"Ready to install" = "准备安装";
+"Cliptype will quit and relaunch as version %@. Because updates are not developer-signed yet, macOS will ask for the Accessibility permission again after the relaunch." = "Cliptype 将退出并以版本 %@ 重新启动。由于更新暂未经过开发者签名，重启后 macOS 会再次请求辅助功能权限。";
+"Install and Relaunch" = "安装并重启";
+"Cancel" = "取消";
+"You're up to date" = "已是最新版本";
+"Cliptype %@ is the latest version." = "Cliptype %@ 已经是最新版本。";
+"Update failed" = "更新失败";
+"No macOS app package was found in the latest release." = "最新发布中没有找到 macOS 应用安装包。";
+"GitHub returned an unexpected response." = "GitHub 返回了意外的响应。";
+"The downloaded file failed verification." = "下载的文件校验失败。";
+"The application folder is not writable. Move Cliptype to your Applications folder and try again." = "应用所在文件夹不可写。请把 Cliptype 移到「应用程序」文件夹后重试。";
+"The downloaded archive could not be extracted." = "无法解压下载的文件。";

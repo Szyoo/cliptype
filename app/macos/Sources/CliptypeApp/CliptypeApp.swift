@@ -39,12 +39,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // システムの許可ダイアログを自動で出すのは「一度も許可されたことがない」
         // 初回だけ。再ビルドで署名が変わって許可が失効した場合などに、起動のたび
         // ダイアログを連発しない（メニューの警告と設定画面から誘導する）。
+        // アップデート直後は署名が変わって権限が失効しているので、一度だけ出し直す
+        let afterUpdate = UserDefaults.standard.bool(forKey: "promptPermissionOnNextLaunch")
         if !PermissionHelper.isTrusted(),
-            !UserDefaults.standard.bool(forKey: "hasEverBeenTrusted")
+            afterUpdate || !UserDefaults.standard.bool(forKey: "hasEverBeenTrusted")
         {
             PermissionHelper.promptIfNeeded()
         }
+        UserDefaults.standard.removeObject(forKey: "promptPermissionOnNextLaunch")
         AppState.shared.activateHotkey()
+        Updater.shared.scheduleAutomaticChecks()
     }
 }
 
@@ -54,7 +58,7 @@ struct MenuContent: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        Text("cliptype — \(state.hotkeyPreset.label)")
+        Text("cliptype \(Updater.currentVersion) — \(state.hotkeyPreset.label)")
 
         if !state.axTrusted {
             Button(L("⚠ Grant Accessibility permission…")) {
@@ -84,6 +88,10 @@ struct MenuContent: View {
 
         SettingsLink {
             Text(L("Settings…"))
+        }
+
+        Button(L("Check for Updates…")) {
+            Task { @MainActor in await Updater.shared.check(userInitiated: true) }
         }
 
         Divider()

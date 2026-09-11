@@ -43,6 +43,14 @@ GUI + resident menu bar icon, best for everyday use.
    The hotkey and typing speed are configurable in the main window or via the
    menu bar icon → Settings.
 
+Later versions **update themselves**: the app checks GitHub Releases on launch
+and every 24 hours (can be disabled in Settings), shows the release notes when
+a new version exists, and on confirmation downloads it, verifies the SHA-256,
+replaces the bundle and relaunches. "Check for Updates…" in the menu bar menu
+checks manually. Because the app is not developer-signed yet, each update
+requires granting the Accessibility permission once more (the prompt appears
+automatically after the relaunch).
+
 ### macOS · Option 2: terminal CLI
 
 No GUI — for developers and scripting.
