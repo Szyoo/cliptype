@@ -64,9 +64,8 @@ No GUI — for developers and scripting.
 4. See [CLI usage](#cli-usage) below.
 
 > The two grants are independent: the app option authorizes Cliptype itself,
-> the CLI option authorizes your terminal. Without the permission macOS
-> silently discards simulated keystrokes; cliptype detects this and exits with
-> an error instead of pretending to succeed.
+> the CLI option authorizes your terminal. See [Permissions](#permissions)
+> below for details.
 
 ### Windows
 
@@ -98,6 +97,75 @@ scripts/bundle-macos.sh          # macOS app, output at dist/Cliptype.app
 
 Linux build dependencies: `libxdo-dev` and the xcb development libraries (see
 the CI config).
+
+## Permissions
+
+### macOS requires the Accessibility permission
+
+Simulating keyboard input is a protected operation on macOS, so cliptype needs
+the **Accessibility** permission: *System Settings → Privacy & Security →
+Accessibility*.
+
+**Which app you grant it to depends on how you run cliptype** — macOS grants
+the permission to the process that initiates the action:
+
+| How you run it | Grant the permission to | After granting |
+| --- | --- | --- |
+| Installed Cliptype.app | **Cliptype** | Relaunch Cliptype |
+| `cliptype` in a terminal | **Your terminal app** (Terminal / iTerm / …) | **Fully quit** and reopen the terminal |
+| `cargo run` / from an IDE | Same — the terminal or IDE running it | Same |
+
+With the app, one entry is enough: the bundled typing engine runs as a child
+process and inherits Cliptype's permission.
+
+**Without the permission**, macOS **silently discards** every simulated
+keystroke — the program looks like it worked, but nothing appears in the target
+window. cliptype checks the permission before typing and exits with an error
+instead of pretending to succeed.
+
+### Granted it but it still doesn't work?
+
+- **Trying it right after flipping the switch**: already-running processes
+  don't pick up the new permission. For the CLI, **fully quit the terminal
+  app** (⌘Q, not just closing the window) and reopen it; for the app, relaunch
+  Cliptype.
+- **After an update or a rebuild**: the app is ad-hoc signed for now, so every
+  build has a different signature and macOS treats it as a different app —
+  **the old grant does not apply to the new version** (the switch may still
+  look enabled but has no effect). In-app updates re-prompt automatically; if a
+  stale entry is stuck in the list, clear it and grant again:
+
+  ```sh
+  tccutil reset Accessibility io.github.szyoo.cliptype
+  ```
+
+  This goes away once the project is signed with an Apple Developer
+  certificate.
+
+### Folder access prompt during updates
+
+If Cliptype.app lives in a protected folder (**Documents, Desktop or
+Downloads**), macOS additionally asks for permission to access that folder when
+the updater replaces the bundle — **the update stalls until you click Allow**.
+Keeping Cliptype in the **Applications** folder avoids this entirely.
+
+### Windows / Linux
+
+- **Windows**: no permission setup at all.
+- **Linux**: no system permission needed, but `libxdo` is required at runtime
+  on X11 (Debian/Ubuntu: `sudo apt-get install -y libxdo3`). Wayland support
+  depends on your compositor; XWayland generally works.
+
+### Privacy
+
+- Clipboard contents are used **locally only**, to simulate keystrokes. Nothing
+  is uploaded anywhere.
+- Clipboard contents **never** appear in logs, error messages or terminal
+  output (the clipboard may hold a password); the only exception is the
+  `--dry-run` flag you pass explicitly.
+- The only network access is the macOS app's **update check** (GitHub
+  Releases), which can be disabled in Settings. The CLI makes no network
+  requests.
 
 ## CLI usage
 
