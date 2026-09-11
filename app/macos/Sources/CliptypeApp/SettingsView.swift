@@ -6,6 +6,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject private var state: AppState
     @ObservedObject private var updater = Updater.shared
+    @ObservedObject private var history = ClipboardHistory.shared
 
     var body: some View {
         Form {
@@ -44,6 +45,44 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             } header: {
                 Text(L("Compatibility"))
+            }
+
+            Section {
+                Toggle(
+                    L("Keep a clipboard history"),
+                    isOn: Binding(
+                        get: { history.isEnabled },
+                        set: { history.isEnabled = $0 }
+                    )
+                )
+                Text(L("Stores the text you copy, on this Mac only, in your Application Support folder. Items that password managers mark as concealed are skipped. Off by default."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                if history.isEnabled {
+                    Picker(
+                        L("Keep up to"),
+                        selection: Binding(
+                            get: { history.maxEntries },
+                            set: { history.maxEntries = $0 }
+                        )
+                    ) {
+                        ForEach(ClipboardHistory.maxEntriesOptions, id: \.self) { n in
+                            Text(L("%d items", n)).tag(n)
+                        }
+                    }
+                    HStack {
+                        Text(L("%d items stored", history.entries.count))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button(L("Clear history")) {
+                            history.clear()
+                        }
+                        .disabled(history.entries.isEmpty)
+                    }
+                }
+            } header: {
+                Text(L("Clipboard history"))
             }
 
             Section {

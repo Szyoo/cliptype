@@ -67,3 +67,13 @@
 "Cliptype still doesn't have the Accessibility permission" = "Cliptype 仍然没有获得辅助功能权限";
 "Updating replaces the app, and macOS ties the old permission to the previous version, so turning the switch off and on does not help.\n\nIn System Settings → Privacy & Security → Accessibility:\n1. Select the Cliptype row\n2. Click − to remove it\n3. Click + and add Cliptype again\n\n\"Remove the entry for me\" does step 2 automatically; you still need to add Cliptype back." = "更新会替换整个应用，而 macOS 把旧权限绑定在旧版本上，所以把开关关掉再打开是没有用的。\n\n请到 系统设置 → 隐私与安全性 → 辅助功能：\n1. 选中 Cliptype 那一行\n2. 点 − 删除它\n3. 点 + 重新添加 Cliptype\n\n「帮我删除条目」会自动完成第 2 步，第 3 步仍需你手动添加。";
 "Remove the entry for me" = "帮我删除条目";
+
+/* クリップボード履歴 */
+"Clipboard history" = "剪贴板历史";
+"Keep a clipboard history" = "保留剪贴板历史";
+"Stores the text you copy, on this Mac only, in your Application Support folder. Items that password managers mark as concealed are skipped. Off by default." = "只在本机保存你复制过的文本（存放于 Application Support 文件夹）。密码管理器标记为隐藏的内容会被跳过。默认关闭。";
+"Keep up to" = "最多保留";
+"%d items" = "%d 条";
+"%d items stored" = "已保存 %d 条";
+"Clear history" = "清空历史";
+"No items yet" = "暂无记录";

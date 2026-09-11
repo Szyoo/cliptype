@@ -13,7 +13,7 @@ mod keymap;
 mod tray;
 mod typer;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::Parser;
 use std::thread;
 use std::time::Duration;
@@ -53,10 +53,22 @@ fn main() -> Result<()> {
         );
     }
 
-    // クリップボードからテキストを取得
-    let text = clipboard::read_text()?;
+    // 入力テキストの取得: 通常はクリップボード、--stdin なら標準入力
+    // （履歴の項目など、クリップボードを汚さずに打ちたいケース）
+    let text = if args.stdin {
+        let mut buf = String::new();
+        std::io::Read::read_to_string(&mut std::io::stdin(), &mut buf)
+            .context("failed to read text from stdin")?;
+        buf
+    } else {
+        clipboard::read_text()?
+    };
     if text.is_empty() {
-        eprintln!("The clipboard is empty or does not contain text.");
+        if args.stdin {
+            eprintln!("No text was provided on stdin.");
+        } else {
+            eprintln!("The clipboard is empty or does not contain text.");
+        }
         return Ok(());
     }
 

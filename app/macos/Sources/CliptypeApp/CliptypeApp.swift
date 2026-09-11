@@ -49,6 +49,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.removeObject(forKey: "promptPermissionOnNextLaunch")
         AppState.shared.activateHotkey()
         Updater.shared.scheduleAutomaticChecks()
+        // クリップボード履歴（既定オフ。有効化したユーザーだけ監視が動く）
+        ClipboardHistory.shared.startIfEnabled()
 
         // アップデート直後に権限が戻らない場合（TCC の古いレコードが残っている）、
         // 放置すると「許可したのに動かない」状態になるので手順を明示する。
@@ -66,6 +68,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 /// メニューバーのドロップダウン内容。
 struct MenuContent: View {
     @EnvironmentObject private var state: AppState
+    @ObservedObject private var history = ClipboardHistory.shared
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
@@ -97,6 +100,26 @@ struct MenuContent: View {
         }
 
         Toggle(L("Remote console mode (VNC / VM)"), isOn: $state.keycodeMode)
+
+        // 履歴の仮 UI（サブメニュー）。最終的な形（ポップアップ等）は別途決める。
+        // 項目を選ぶとクリップボードへ戻す → いつものホットキーで入力できる。
+        if history.isEnabled {
+            Menu(L("Clipboard history")) {
+                if history.entries.isEmpty {
+                    Text(L("No items yet"))
+                } else {
+                    ForEach(history.entries.prefix(15)) { entry in
+                        Button(entry.preview) {
+                            history.copyToPasteboard(entry)
+                        }
+                    }
+                    Divider()
+                    Button(L("Clear history")) {
+                        history.clear()
+                    }
+                }
+            }
+        }
 
         Divider()
 

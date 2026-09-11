@@ -7,6 +7,20 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Clipboard history (basic, off by default)**: once enabled in Settings, the
+  macOS app records the text you copy (deduplicated, capped at 20/50/100 items,
+  100 KB per item), stored only on this Mac in the Application Support folder
+  (mode 0600); items that password managers mark as concealed or transient are
+  skipped. A "Clipboard history" submenu in the menu bar lists recent items —
+  pick one to put it back on the clipboard, then type it with the hotkey. The
+  full history UI (popup panel etc.) will be decided in a later version.
+- CLI: `--stdin` reads the text to type from standard input instead of the
+  clipboard (used by the app to type a history item; the text never appears in
+  the process arguments).
+
 ## [0.1.2] - 2026-09-11
 
 ### Fixed

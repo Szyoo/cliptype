@@ -67,3 +67,13 @@
 "Cliptype still doesn't have the Accessibility permission" = "Cliptype にまだアクセシビリティ権限がありません";
 "Updating replaces the app, and macOS ties the old permission to the previous version, so turning the switch off and on does not help.\n\nIn System Settings → Privacy & Security → Accessibility:\n1. Select the Cliptype row\n2. Click − to remove it\n3. Click + and add Cliptype again\n\n\"Remove the entry for me\" does step 2 automatically; you still need to add Cliptype back." = "アップデートではアプリ自体が置き換わり、macOS は以前のバージョンに権限を紐づけているため、スイッチを入れ直しても直りません。\n\nシステム設定 → プライバシーとセキュリティ → アクセシビリティ で:\n1. Cliptype の行を選択\n2. − を押して削除\n3. + を押して Cliptype を追加し直す\n\n「エントリを削除する」は手順 2 を自動で行います。手順 3 は手動で行ってください。";
 "Remove the entry for me" = "エントリを削除する";
+
+/* クリップボード履歴 */
+"Clipboard history" = "クリップボード履歴";
+"Keep a clipboard history" = "クリップボード履歴を保存";
+"Stores the text you copy, on this Mac only, in your Application Support folder. Items that password managers mark as concealed are skipped. Off by default." = "コピーしたテキストをこの Mac 内（Application Support フォルダ）だけに保存します。パスワードマネージャが秘匿指定した項目は記録しません。既定はオフです。";
+"Keep up to" = "保存件数の上限";
+"%d items" = "%d 件";
+"%d items stored" = "%d 件を保存中";
+"Clear history" = "履歴を消去";
+"No items yet" = "まだ項目がありません";

@@ -35,6 +35,12 @@ pub struct Args {
     #[arg(long)]
     pub dry_run: bool,
 
+    /// Read the text to type from standard input instead of the clipboard.
+    /// Used by the macOS app to type a clipboard-history item without touching
+    /// the clipboard; the text never appears in the process arguments
+    #[arg(long)]
+    pub stdin: bool,
+
     /// Exit 0 if keystroke simulation is permitted, 1 otherwise, without typing.
     /// Used by the macOS app: AXIsProcessTrusted() is cached per process, so a
     /// running app can never observe a permission change — a fresh process can.

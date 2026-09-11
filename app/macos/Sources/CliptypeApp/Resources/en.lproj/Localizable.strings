@@ -55,3 +55,11 @@
 "Cliptype still doesn't have the Accessibility permission" = "Cliptype still doesn't have the Accessibility permission";
 "Updating replaces the app, and macOS ties the old permission to the previous version, so turning the switch off and on does not help.\n\nIn System Settings → Privacy & Security → Accessibility:\n1. Select the Cliptype row\n2. Click − to remove it\n3. Click + and add Cliptype again\n\n\"Remove the entry for me\" does step 2 automatically; you still need to add Cliptype back." = "Updating replaces the app, and macOS ties the old permission to the previous version, so turning the switch off and on does not help.\n\nIn System Settings → Privacy & Security → Accessibility:\n1. Select the Cliptype row\n2. Click − to remove it\n3. Click + and add Cliptype again\n\n\"Remove the entry for me\" does step 2 automatically; you still need to add Cliptype back.";
 "Remove the entry for me" = "Remove the entry for me";
+"Clipboard history" = "Clipboard history";
+"Keep a clipboard history" = "Keep a clipboard history";
+"Stores the text you copy, on this Mac only, in your Application Support folder. Items that password managers mark as concealed are skipped. Off by default." = "Stores the text you copy, on this Mac only, in your Application Support folder. Items that password managers mark as concealed are skipped. Off by default.";
+"Keep up to" = "Keep up to";
+"%d items" = "%d items";
+"%d items stored" = "%d items stored";
+"Clear history" = "Clear history";
+"No items yet" = "No items yet";
