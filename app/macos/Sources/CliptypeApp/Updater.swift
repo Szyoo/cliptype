@@ -239,8 +239,7 @@ final class Updater: ObservableObject {
         let script = """
             #!/bin/bash
             # cliptype 更新ヘルパー: 旧プロセスの終了を待って差し替え、再起動する
-            PID="$1"; OLD="$2"; NEW="$3"
-            WORK="$(cd "$(dirname "$0")" && pwd)"
+            PID="$1"; OLD="$2"; NEW="$3"; WORK="$4"
             for _ in $(seq 1 150); do
                 kill -0 "$PID" 2>/dev/null || break
                 sleep 0.2
@@ -251,17 +250,19 @@ final class Updater: ObservableObject {
             xattr -dr com.apple.quarantine "$OLD" 2>/dev/null
             tccutil reset Accessibility io.github.szyoo.cliptype >/dev/null 2>&1
             open "$OLD"
-            # 作業ディレクトリ（zip とこのスクリプト自身）を片付ける
-            rm -rf "$WORK"
+            # 作業ディレクトリ（zip・展開先・このスクリプト自身）を片付ける
+            case "$WORK" in *cliptype-update-*) rm -rf "$WORK" ;; esac
             """
         do {
-            let scriptURL = newApp.deletingLastPathComponent().appendingPathComponent("install.sh")
+            // newApp は <work>/extract/Cliptype.app にある
+            let workDir = newApp.deletingLastPathComponent().deletingLastPathComponent()
+            let scriptURL = workDir.appendingPathComponent("install.sh")
             try script.write(to: scriptURL, atomically: true, encoding: .utf8)
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/bin/bash")
             process.arguments = [
                 scriptURL.path, String(ProcessInfo.processInfo.processIdentifier),
-                current.path, newApp.path,
+                current.path, newApp.path, workDir.path,
             ]
             process.standardOutput = FileHandle.nullDevice
             process.standardError = FileHandle.nullDevice
