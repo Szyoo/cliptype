@@ -60,3 +60,10 @@
 "The application folder is not writable. Move Cliptype to your Applications folder and try again." = "应用所在文件夹不可写。请把 Cliptype 移到「应用程序」文件夹后重试。";
 "The downloaded archive could not be extracted." = "无法解压下载的文件。";
 "Cliptype is in a protected folder (Documents, Desktop or Downloads), so macOS may also ask for permission to access that folder — click Allow, or the update will stall. Keeping Cliptype in the Applications folder avoids this." = "Cliptype 位于受保护的文件夹（文稿、桌面或下载）中，macOS 可能会额外询问是否允许访问该文件夹——请点「允许」，否则更新会卡住。把 Cliptype 放在「应用程序」文件夹可以避免这一步。";
+
+/* 権限のトラブルシュート */
+"If Cliptype is already listed and switching it off and on doesn't help, select the Cliptype row, click the − button to remove it, then click + and add Cliptype again. An update changes the app's signature, and only re-adding the entry records the new one." = "如果列表里已经有 Cliptype，但关掉再打开开关仍然无效：选中 Cliptype 那一行，点 − 删除，再点 + 重新添加 Cliptype。更新会改变应用的签名，只有重新添加条目才会记录新的签名。";
+"Remove the stale entry for me…" = "帮我删除失效的条目…";
+"Cliptype still doesn't have the Accessibility permission" = "Cliptype 仍然没有获得辅助功能权限";
+"Updating replaces the app, and macOS ties the old permission to the previous version, so turning the switch off and on does not help.\n\nIn System Settings → Privacy & Security → Accessibility:\n1. Select the Cliptype row\n2. Click − to remove it\n3. Click + and add Cliptype again\n\n\"Remove the entry for me\" does step 2 automatically; you still need to add Cliptype back." = "更新会替换整个应用，而 macOS 把旧权限绑定在旧版本上，所以把开关关掉再打开是没有用的。\n\n请到 系统设置 → 隐私与安全性 → 辅助功能：\n1. 选中 Cliptype 那一行\n2. 点 − 删除它\n3. 点 + 重新添加 Cliptype\n\n「帮我删除条目」会自动完成第 2 步，第 3 步仍需你手动添加。";
+"Remove the entry for me" = "帮我删除条目";

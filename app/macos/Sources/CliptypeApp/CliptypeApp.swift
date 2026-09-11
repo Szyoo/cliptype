@@ -49,6 +49,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.removeObject(forKey: "promptPermissionOnNextLaunch")
         AppState.shared.activateHotkey()
         Updater.shared.scheduleAutomaticChecks()
+
+        // アップデート直後に権限が戻らない場合（TCC の古いレコードが残っている）、
+        // 放置すると「許可したのに動かない」状態になるので手順を明示する。
+        if afterUpdate {
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(12))
+                if !AppState.shared.axTrusted {
+                    PermissionHelper.presentStaleRecordHelp()
+                }
+            }
+        }
     }
 }
 
@@ -61,9 +72,12 @@ struct MenuContent: View {
         Text("cliptype \(Updater.currentVersion) — \(state.hotkeyPreset.label)")
 
         if !state.axTrusted {
+            // 設定画面に詳しい手順（古いレコードの削除）があるのでそちらへ誘導する
             Button(L("⚠ Grant Accessibility permission…")) {
                 PermissionHelper.promptIfNeeded()
                 PermissionHelper.openSystemSettings()
+                openWindow(id: "main")
+                NSApp.activate(ignoringOtherApps: true)
             }
         }
 

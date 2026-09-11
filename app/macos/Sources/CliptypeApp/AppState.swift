@@ -56,24 +56,50 @@ final class AppState: ObservableObject {
     /// 再評価されず古い表示が残るため、監視付きの @Published にしている。
     @Published private(set) var axTrusted = PermissionHelper.isTrusted()
 
+    /// 起動してから一度も権限を観測できていないか（＝案内を強めに出す条件）。
+    @Published private(set) var permissionNeverSeen = !PermissionHelper.isTrusted()
+
     private let hotkeyManager = HotkeyManager()
     private var permissionTimer: Timer?
 
     /// 権限状態の変化（付与・剥奪とも）を定期的に拾ってメニューへ反映する。
-    /// AXIsProcessTrusted は極めて軽いので 2 秒間隔のポーリングで十分。
+    ///
+    /// 注意: プロセス内の `AXIsProcessTrusted()` は**キャッシュされる**ため、
+    /// いくらポーリングしても起動後の変化を観測できない（実測: 許可を取り消しても
+    /// true のまま、許可を与えても false のまま）。これが「許可したのにアプリが
+    /// 認識しない」というユーザー報告の一因だった。そこで同梱エンジンを新しい
+    /// プロセスとして起動して問い合わせる。数 ms の軽い処理だが、無駄打ちを
+    /// 避けるため許可済みのときは間隔を空ける。
     func startPermissionWatcher() {
         guard permissionTimer == nil else { return }
         permissionTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
-            Task { @MainActor in
-                let state = AppState.shared
-                let trusted = PermissionHelper.isTrusted()
-                if trusted != state.axTrusted {
-                    state.axTrusted = trusted
-                }
-                // 「一度でも許可されたことがある」を記録（起動時の自動ダイアログ抑制用）
-                if trusted, !UserDefaults.standard.bool(forKey: "hasEverBeenTrusted") {
-                    UserDefaults.standard.set(true, forKey: "hasEverBeenTrusted")
-                }
+            Task { @MainActor in AppState.shared.pollPermission() }
+        }
+        // 起動直後にも 1 回だけ正確な値を取り直す
+        pollPermission(force: true)
+    }
+
+    private var permissionTick = 0
+
+    /// 未許可のときは 2 秒ごと、許可済みのときは 10 秒ごとに確認する。
+    private func pollPermission(force: Bool = false) {
+        permissionTick += 1
+        if !force, axTrusted, permissionTick % 5 != 0 { return }
+        Task.detached(priority: .utility) {
+            let trusted = PermissionHelper.isTrustedFresh()
+            await MainActor.run { AppState.shared.applyTrustState(trusted) }
+        }
+    }
+
+    fileprivate func applyTrustState(_ trusted: Bool) {
+        if trusted != axTrusted {
+            axTrusted = trusted
+        }
+        if trusted {
+            permissionNeverSeen = false
+            // 「一度でも許可されたことがある」を記録（起動時の自動ダイアログ抑制用）
+            if !UserDefaults.standard.bool(forKey: "hasEverBeenTrusted") {
+                UserDefaults.standard.set(true, forKey: "hasEverBeenTrusted")
             }
         }
     }

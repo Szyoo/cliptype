@@ -129,18 +129,31 @@ instead of pretending to succeed.
   don't pick up the new permission. For the CLI, **fully quit the terminal
   app** (⌘Q, not just closing the window) and reopen it; for the app, relaunch
   Cliptype.
-- **After an update or a rebuild**: the app is ad-hoc signed for now, so every
-  build has a different signature and macOS treats it as a different app —
-  **the old grant does not apply to the new version** (the switch may still
-  look enabled but has no effect). In-app updates re-prompt automatically; if a
-  stale entry is stuck in the list, clear it and grant again:
+- **After an update or rebuild the switch is on but nothing works**: the app is
+  ad-hoc signed for now, so every build has a different signature. macOS ties
+  the permission record to the **old version's signature**, so the Cliptype row
+  looks enabled but the new build doesn't match it — and **turning the switch
+  off and on doesn't help**, because that only flips the "allowed" flag without
+  updating the recorded signature. You have to **recreate the record**:
 
-  ```sh
-  tccutil reset Accessibility io.github.szyoo.cliptype
-  ```
+  1. System Settings → Privacy & Security → Accessibility, select the
+     **Cliptype** row
+  2. Click **−** to remove it
+  3. Click **+** and add Cliptype again (or relaunch Cliptype and follow its
+     prompt)
 
+  After an in-app update, if the permission is still missing 12 seconds after
+  the relaunch, Cliptype shows these steps itself with a "Remove the entry for
+  me" button (equivalent to `tccutil reset Accessibility io.github.szyoo.cliptype`).
   This goes away once the project is signed with an Apple Developer
   certificate.
+- **Why do some permissions offer an "Allow" button while Accessibility needs a
+  trip to System Settings?** That's macOS policy: Accessibility, Input
+  Monitoring, Screen Recording and Full Disk Access are high-risk permissions,
+  and the system deliberately offers no one-click approval — an app can only
+  show a prompt with an "Open System Settings" button. Ordinary permissions
+  (camera, microphone, folder access, …) get the "Allow / Don't Allow" dialog.
+  No app can bypass or customize this.
 
 ### Folder access prompt during updates
 

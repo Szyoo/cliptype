@@ -35,6 +35,12 @@ pub struct Args {
     #[arg(long)]
     pub dry_run: bool,
 
+    /// Exit 0 if keystroke simulation is permitted, 1 otherwise, without typing.
+    /// Used by the macOS app: AXIsProcessTrusted() is cached per process, so a
+    /// running app can never observe a permission change — a fresh process can.
+    #[arg(long)]
+    pub check_permission: bool,
+
     /// Stay resident and type the clipboard each time COMBO is pressed
     /// (e.g. "ctrl+shift+v", "alt+F9"); --delay is ignored in this mode
     #[cfg(feature = "hotkey")]

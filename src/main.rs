@@ -21,6 +21,15 @@ use std::time::Duration;
 fn main() -> Result<()> {
     let args = cli::Args::parse();
 
+    // 権限の問い合わせのみ（macOS アプリが定期的に呼ぶ）。出力はせず終了コードで返す。
+    if args.check_permission {
+        std::process::exit(if typer::ensure_permission().is_ok() {
+            0
+        } else {
+            1
+        });
+    }
+
     // トレイモード: ステータスバー常駐 + ホットキー
     #[cfg(all(feature = "tray", any(target_os = "macos", target_os = "windows")))]
     if args.tray {

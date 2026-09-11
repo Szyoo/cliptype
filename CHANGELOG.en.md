@@ -7,6 +7,30 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- **Permission status never updated**: `AXIsProcessTrusted()` is cached per
+  process, so a running app could never observe the permission being granted
+  or revoked — users who had just granted it still saw "Accessibility
+  permission required". The app now asks a fresh process (the bundled engine's
+  `--check-permission`), so the UI updates within 2 seconds of granting, no
+  relaunch needed.
+- **Switch enabled after an update but nothing works**: an in-app update
+  replaces the whole bundle, and macOS ties the old permission record to the
+  previous version's signature; toggling the switch off and on doesn't help —
+  the entry has to be removed and re-added (found via a user report). If the
+  permission is still missing 12 seconds after an update, the app now shows the
+  exact − / + steps with a "Remove the entry for me" button; the same guidance
+  lives permanently in the Settings permission section.
+- Opening System Settings tries several URL schemes in order, for compatibility
+  across macOS versions.
+
+### Added
+- CLI: `--check-permission` reports via the exit code whether keystroke
+  simulation is permitted (0 = allowed) without typing anything; used by the
+  macOS app to query the permission state.
+
 ## [0.1.1] - 2026-09-11
 
 ### Added

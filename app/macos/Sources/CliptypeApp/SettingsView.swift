@@ -59,6 +59,16 @@ struct SettingsView: View {
                     Button(L("Open System Settings…")) {
                         PermissionHelper.openSystemSettings()
                     }
+                    // アップデート後は TCC の古いレコードが残り、スイッチを入れ直しても
+                    // 効かないことがある（ユーザー報告）。その手順をそのまま案内する。
+                    Text(L("If Cliptype is already listed and switching it off and on doesn't help, select the Cliptype row, click the − button to remove it, then click + and add Cliptype again. An update changes the app's signature, and only re-adding the entry records the new one."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Button(L("Remove the stale entry for me…")) {
+                        PermissionHelper.resetPermissionRecord()
+                        PermissionHelper.promptIfNeeded()
+                        PermissionHelper.openSystemSettings()
+                    }
                 }
             } header: {
                 Text(L("Permissions"))
