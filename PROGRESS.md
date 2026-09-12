@@ -20,6 +20,12 @@
   - 更新助手去掉 `tccutil reset`（会丢掉有效授权）；「准备安装」文案改为"设置与权限
     保留"（三语）。README/AGENTS/CHANGELOG/plan 同步。
   - 一次性代价：从 ad-hoc 版（≤0.1.2）升级时用户需重新授权一次（− / +），之后永久。
+  - 坑 3（CI）：runner 的旧版 macOS 上 codesign 仅凭 `--keychain` 找不到 identity
+    （"no identity found"），必须把临时钥匙串加入用户搜索列表；脚本结束时恢复原列表。
+- **v0.1.3 发布**（用户拍板"打包发布"）：https://github.com/Szyoo/cliptype/releases/tag/v0.1.3
+  内容 = 证书签名 + 剪贴板历史基础版 + 可缩放窗口 + `--stdin`。CI 签出的 App
+  `Authority=Cliptype Signing`，DR 与本地构建完全一致（`certificate root = H"f3a4…"`），
+  即本地打包与 Release 包共享同一授权。首次触发因搜索列表问题失败，修复后重打 tag。
 
 ## 2026-09-12
 
