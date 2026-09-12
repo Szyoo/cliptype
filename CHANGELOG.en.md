@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- The main and settings windows can now be resized down to about 440×360 and
+  the form scrolls when the content is taller; previously the window was forced
+  to the full content height and could not be made smaller. Default size is
+  480×640.
+
 ### Added
 - **Clipboard history (basic, off by default)**: once enabled in Settings, the
   macOS app records the text you copy (deduplicated, capped at 20/50/100 items,

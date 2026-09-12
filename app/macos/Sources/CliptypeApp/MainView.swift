@@ -12,6 +12,7 @@ struct MainView: View {
             Divider()
             SettingsView()
         }
+        .frame(minWidth: 440, minHeight: 360)
     }
 
     private var header: some View {
