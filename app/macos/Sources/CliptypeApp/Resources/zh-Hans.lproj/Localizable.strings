@@ -48,7 +48,7 @@
 "Later" = "以后再说";
 "Skip This Version" = "跳过此版本";
 "Ready to install" = "准备安装";
-"Cliptype will quit and relaunch as version %@. Because updates are not developer-signed yet, macOS will ask for the Accessibility permission again after the relaunch." = "Cliptype 将退出并以版本 %@ 重新启动。由于更新暂未经过开发者签名，重启后 macOS 会再次请求辅助功能权限。";
+"Cliptype will quit and relaunch as version %@. Your settings and the Accessibility permission are kept." = "Cliptype 将退出并以版本 %@ 重新启动。你的设置和辅助功能权限会保留。";
 "Install and Relaunch" = "安装并重启";
 "Cancel" = "取消";
 "You're up to date" = "已是最新版本";

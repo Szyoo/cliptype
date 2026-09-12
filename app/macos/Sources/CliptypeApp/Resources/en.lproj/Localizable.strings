@@ -38,7 +38,7 @@
 "Later" = "Later";
 "Skip This Version" = "Skip This Version";
 "Ready to install" = "Ready to install";
-"Cliptype will quit and relaunch as version %@. Because updates are not developer-signed yet, macOS will ask for the Accessibility permission again after the relaunch." = "Cliptype will quit and relaunch as version %@. Because updates are not developer-signed yet, macOS will ask for the Accessibility permission again after the relaunch.";
+"Cliptype will quit and relaunch as version %@. Your settings and the Accessibility permission are kept." = "Cliptype will quit and relaunch as version %@. Your settings and the Accessibility permission are kept.";
 "Install and Relaunch" = "Install and Relaunch";
 "Cancel" = "Cancel";
 "You're up to date" = "You're up to date";

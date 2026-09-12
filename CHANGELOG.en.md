@@ -7,9 +7,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.3] - 2026-09-13
 
 ### Changed
+- **The macOS app is now signed with a stable code-signing certificate**: the
+  signing requirement no longer changes with every build, so **the Accessibility
+  permission survives in-app updates — no more re-granting**. Upgrading from
+  0.1.2 or earlier (ad-hoc signed) still requires one re-grant (remove the entry
+  and add it again); after that it sticks. The update helper no longer resets
+  the permission record. The app is still not notarized by Apple, so the
+  Gatekeeper warning remains.
 - The main and settings windows can now be resized down to about 440×360 and
   the form scrolls when the content is taller; previously the window was forced
   to the full content height and could not be made smaller. Default size is

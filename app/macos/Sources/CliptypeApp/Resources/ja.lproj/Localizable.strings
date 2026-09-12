@@ -48,7 +48,7 @@
 "Later" = "後で";
 "Skip This Version" = "このバージョンをスキップ";
 "Ready to install" = "インストールの準備ができました";
-"Cliptype will quit and relaunch as version %@. Because updates are not developer-signed yet, macOS will ask for the Accessibility permission again after the relaunch." = "Cliptype を終了し、バージョン %@ として再起動します。アップデートはまだ開発者署名されていないため、再起動後に macOS がアクセシビリティ権限を再度求めます。";
+"Cliptype will quit and relaunch as version %@. Your settings and the Accessibility permission are kept." = "Cliptype を終了し、バージョン %@ として再起動します。設定とアクセシビリティ権限はそのまま維持されます。";
 "Install and Relaunch" = "インストールして再起動";
 "Cancel" = "キャンセル";
 "You're up to date" = "最新の状態です";
