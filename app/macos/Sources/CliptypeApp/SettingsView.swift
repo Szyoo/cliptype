@@ -139,8 +139,9 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 420)
-        .fixedSize(horizontal: false, vertical: true)
+        // 高さは固定しない: 内容がウィンドウより長ければグループ化フォームが
+        // 自前でスクロールする。ウィンドウ側で最小サイズだけ決める。
+        .frame(minWidth: 440, idealWidth: 480, minHeight: 320)
     }
 
     private var hotkeyBinding: Binding<String> {

@@ -14,7 +14,8 @@ struct CliptypeApp: App {
             MainView()
                 .environmentObject(state)
         }
-        .windowResizability(.contentSize)
+        .defaultSize(width: 480, height: 640)
+        .windowResizability(.contentMinSize)
 
         MenuBarExtra {
             MenuContent()

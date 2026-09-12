@@ -2,6 +2,15 @@
 
 > 最新在上；绝对日期；记录实质进展、技术决策、卡点。规则见 [AGENTS.md](AGENTS.md)。
 
+## 2026-09-12
+
+- **窗口最小高度过大（用户反馈）**：SettingsView 的 `fixedSize(vertical:)` + 场景
+  `windowResizability(.contentSize)` 把窗口撑到内容全高且不可缩。改为
+  `.contentMinSize` + `defaultSize(480×640)` + 视图 `minHeight`（主窗 360 / 设置 320），
+  grouped Form 自带滚动。用 debug 构建验证（480×640 → 可缩至 460×388、钳住不再缩 →
+  可拉到 900），**没有重新打包 dist**，避免再次让用户刚授好的权限失效。
+  用户问"UI 是原生的吗"：是，纯 SwiftUI 系统控件，自动套用当前 macOS 设计语言。
+
 ## 2026-09-11
 
 - **v0.1.2 发布**（用户拍板）：https://github.com/Szyoo/cliptype/releases/tag/v0.1.2 ——
