@@ -105,13 +105,25 @@ CODESIGN_ID="${CODESIGN_ID:-Cliptype Signing}"
 if [ -f "$P12" ] && [ -n "$P12_PASSWORD" ]; then
     KEYCHAIN="$(mktemp -d)/cliptype-signing.keychain-db"
     KC_PASS="$(openssl rand -hex 16)"
-    cleanup_keychain() { security delete-keychain "$KEYCHAIN" >/dev/null 2>&1 || true; }
+    # 元の検索リストを覚えておき、終了時に戻す（一時キーチェーンも削除）
+    ORIGINAL_KEYCHAINS="$(security list-keychains -d user | tr -d '"' | tr '\n' ' ')"
+    cleanup_keychain() {
+        # shellcheck disable=SC2086
+        security list-keychains -d user -s $ORIGINAL_KEYCHAINS >/dev/null 2>&1 || true
+        security delete-keychain "$KEYCHAIN" >/dev/null 2>&1 || true
+    }
     trap cleanup_keychain EXIT
     security create-keychain -p "$KC_PASS" "$KEYCHAIN"
     security set-keychain-settings -lut 600 "$KEYCHAIN"
     security unlock-keychain -p "$KC_PASS" "$KEYCHAIN"
     security import "$P12" -k "$KEYCHAIN" -P "$P12_PASSWORD" -T /usr/bin/codesign >/dev/null
     security set-key-partition-list -S apple-tool:,apple: -s -k "$KC_PASS" "$KEYCHAIN" >/dev/null
+    # codesign が identity を見つけられるよう検索リストに加える（古い macOS では
+    # --keychain 指定だけでは "no identity found" になる。CI で実測）
+    # shellcheck disable=SC2086
+    security list-keychains -d user -s "$KEYCHAIN" $ORIGINAL_KEYCHAINS
+    echo "==> signing identities in temp keychain:"
+    security find-identity -p codesigning "$KEYCHAIN" | grep -E '^\s+[0-9]+\)' || true
     # 自己署名証明書はタイムスタンプサーバを使えないので --timestamp=none
     codesign --force --deep --sign "$CODESIGN_ID" --keychain "$KEYCHAIN" --timestamp=none "$APP_DIR"
     echo "==> signed with identity: $CODESIGN_ID"
