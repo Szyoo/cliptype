@@ -2,6 +2,25 @@
 
 > 最新在上；绝对日期；记录实质进展、技术决策、卡点。规则见 [AGENTS.md](AGENTS.md)。
 
+## 2026-09-13
+
+- **证书签名：更新不再需要重新授权**（用户目标"用户那里也不要重新授权"，选择自签证书
+  方案；Apple Developer ID 留作后续升级）。
+  - 原理：TCC 把授权绑定到签名要求（DR）。ad-hoc 的 DR = 内容哈希（每次构建变）；
+    证书签名的 DR = `identifier "io.github.szyoo.cliptype" and certificate root = H"<证书哈希>"`
+    （跨构建不变）。已实测两个不同二进制 DR 完全一致；codesign **不需要**系统信任该证书。
+  - 证书：openssl 自签 "Cliptype Signing"（RSA 2048 / 10 年 / codeSigning EKU），存
+    `~/.config/cliptype-signing/`（0700/0600），p12 + 密码入 GitHub Secrets
+    `MACOS_SIGNING_P12_BASE64` / `MACOS_SIGNING_P12_PASSWORD`。**p12 必须备份，绝不入库。**
+  - 坑 1：OpenSSL 3 默认 p12 算法 macOS 不认（"MAC verification failed"），需
+    `-certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES -macalg sha1`。
+  - 坑 2：导入登录钥匙串后 codesign 会弹「访问密钥」GUI 对话框并阻塞。改为
+    bundle-macos.sh 每次在**一次性临时钥匙串**里导入签名（`set-key-partition-list`
+    用已知密码），本地与 CI 同一流程，零弹窗；已从登录钥匙串移除该 identity。
+  - 更新助手去掉 `tccutil reset`（会丢掉有效授权）；「准备安装」文案改为"设置与权限
+    保留"（三语）。README/AGENTS/CHANGELOG/plan 同步。
+  - 一次性代价：从 ad-hoc 版（≤0.1.2）升级时用户需重新授权一次（− / +），之后永久。
+
 ## 2026-09-12
 
 - **窗口最小高度过大（用户反馈）**：SettingsView 的 `fixedSize(vertical:)` + 场景

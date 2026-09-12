@@ -89,14 +89,38 @@ PLIST
 
 echo "APPL????" > "$APP_DIR/Contents/PkgInfo"
 
-# 署名: CODESIGN_ID があればそれを使う（自己署名証明書なら再ビルドしても
-# TCC の許可が維持される）。無ければ ad-hoc 署名 —— この場合、再ビルドの
-# たびに署名が変わり、以前のアクセシビリティ許可は無効になる。
-codesign --force --deep --sign "${CODESIGN_ID:--}" "$APP_DIR"
+# 署名。
+# - 証明書（.p12）があれば一時キーチェーンに取り込んで署名する。署名要件（DR）が
+#   「identifier + 証明書」になり、版をまたいでも同じなので、ユーザーのアクセシビリティ
+#   許可がアップデート後も維持される。ログインキーチェーンは触らないので GUI の
+#   許可ダイアログも出ない。ローカルも CI も同じ経路。
+# - 無ければ ad-hoc 署名（毎ビルド署名が変わり、許可は失効する）。
+P12="${CODESIGN_P12:-$HOME/.config/cliptype-signing/cliptype-signing.p12}"
+P12_PASSWORD="${CODESIGN_P12_PASSWORD:-}"
+if [ -z "$P12_PASSWORD" ] && [ -f "$(dirname "$P12")/p12-password.txt" ]; then
+    P12_PASSWORD="$(cat "$(dirname "$P12")/p12-password.txt")"
+fi
+CODESIGN_ID="${CODESIGN_ID:-Cliptype Signing}"
+
+if [ -f "$P12" ] && [ -n "$P12_PASSWORD" ]; then
+    KEYCHAIN="$(mktemp -d)/cliptype-signing.keychain-db"
+    KC_PASS="$(openssl rand -hex 16)"
+    cleanup_keychain() { security delete-keychain "$KEYCHAIN" >/dev/null 2>&1 || true; }
+    trap cleanup_keychain EXIT
+    security create-keychain -p "$KC_PASS" "$KEYCHAIN"
+    security set-keychain-settings -lut 600 "$KEYCHAIN"
+    security unlock-keychain -p "$KC_PASS" "$KEYCHAIN"
+    security import "$P12" -k "$KEYCHAIN" -P "$P12_PASSWORD" -T /usr/bin/codesign >/dev/null
+    security set-key-partition-list -S apple-tool:,apple: -s -k "$KC_PASS" "$KEYCHAIN" >/dev/null
+    # 自己署名証明書はタイムスタンプサーバを使えないので --timestamp=none
+    codesign --force --deep --sign "$CODESIGN_ID" --keychain "$KEYCHAIN" --timestamp=none "$APP_DIR"
+    echo "==> signed with identity: $CODESIGN_ID"
+    codesign -d -r- "$APP_DIR" 2>&1 | grep '^designated' || true
+else
+    codesign --force --deep --sign - "$APP_DIR"
+    echo "note: ad-hoc signed (no certificate at $P12). Every rebuild changes the"
+    echo "      signature, so macOS treats it as a new app and the Accessibility grant"
+    echo "      stops applying. See AGENTS.md → 签名 for the certificate setup."
+fi
 
 echo "==> done: $APP_DIR"
-if [ -z "${CODESIGN_ID:-}" ]; then
-    echo "note: ad-hoc signed. If you rebuilt, macOS treats this as a new app —"
-    echo "      reset the stale permission and re-grant on next launch:"
-    echo "      tccutil reset Accessibility io.github.szyoo.cliptype"
-fi

@@ -92,8 +92,29 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
+      # 署名用証明書（自己署名）。Secrets が無いフォークでは ad-hoc にフォールバック。
+      # 証明書署名だと署名要件が版をまたいで同じになり、ユーザーのアクセシビリティ
+      # 許可がアップデート後も維持される（ad-hoc は毎ビルド変わる）。
+      # キーチェーンの取り込みは bundle-macos.sh が一時キーチェーンで行う。
+      - name: Prepare signing certificate
+        env:
+          P12_BASE64: ${{ secrets.MACOS_SIGNING_P12_BASE64 }}
+        run: |
+          if [ -n "$P12_BASE64" ]; then
+            echo "$P12_BASE64" | base64 --decode > "$RUNNER_TEMP/signing.p12"
+            echo "CODESIGN_P12=$RUNNER_TEMP/signing.p12" >> "$GITHUB_ENV"
+            echo "signing certificate available"
+          else
+            echo "no signing certificate secret — will sign ad-hoc"
+          fi
+
       - name: Build Cliptype.app (universal)
+        env:
+          CODESIGN_P12_PASSWORD: ${{ secrets.MACOS_SIGNING_P12_PASSWORD }}
         run: BUILD_UNIVERSAL=1 scripts/bundle-macos.sh
+
+      - name: Show signature
+        run: codesign -dvv dist/Cliptype.app 2>&1 | grep -E "Authority|Signature|Identifier" ; codesign -d -r- dist/Cliptype.app 2>&1 | grep designated
 
       - name: Package
         run: |

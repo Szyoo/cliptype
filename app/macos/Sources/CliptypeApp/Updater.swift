@@ -6,9 +6,10 @@
 // ad-hoc 署名 + GitHub Releases のパイプラインには重すぎる。リリース成果物には
 // 既に .sha256 が付いているので、それを検証に使う。
 //
-// 制約（Developer ID 署名を導入するまで）: 差し替え後は署名が変わるため
-// アクセシビリティ権限が失効する。インストーラ側で TCC の古い項目を消し、
-// 再起動後に許可ダイアログを出し直す。
+// 権限について: 0.1.3 以降は証明書で署名しており、署名要件（identifier + 証明書）が
+// 版をまたいで同じなので、差し替え後もアクセシビリティ許可は維持される。
+// ad-hoc 署名だった 0.1.2 以前からの更新では一度だけ再許可が必要になるため、
+// 再起動後に権限を確認し、無ければ案内を出す。
 
 import AppKit
 import CryptoKit
@@ -233,7 +234,8 @@ final class Updater: ObservableObject {
             return
         }
 
-        // 再起動後に権限ダイアログを出し直す（署名が変わって失効するため）
+        // 再起動後に権限を確認し、失効していた場合だけ案内を出す（ad-hoc 版からの
+        // 移行時など）。証明書署名どうしの更新では許可は保持される。
         UserDefaults.standard.set(true, forKey: "promptPermissionOnNextLaunch")
 
         let script = """
@@ -248,7 +250,9 @@ final class Updater: ObservableObject {
             rm -rf "$OLD"
             mv "$NEW" "$OLD"
             xattr -dr com.apple.quarantine "$OLD" 2>/dev/null
-            tccutil reset Accessibility io.github.szyoo.cliptype >/dev/null 2>&1
+            # 注意: ここで tccutil reset してはいけない。証明書署名（0.1.3+）では
+            # 署名要件が版をまたいで同じなので、既存のアクセシビリティ許可は
+            # そのまま有効。リセットすると有効な許可を捨てることになる。
             open "$OLD"
             # 作業ディレクトリ（zip・展開先・このスクリプト自身）を片付ける
             case "$WORK" in *cliptype-update-*) rm -rf "$WORK" ;; esac
@@ -321,7 +325,7 @@ final class Updater: ObservableObject {
         let alert = NSAlert()
         alert.messageText = L("Ready to install")
         var info = L(
-            "Cliptype will quit and relaunch as version %@. Because updates are not developer-signed yet, macOS will ask for the Accessibility permission again after the relaunch.",
+            "Cliptype will quit and relaunch as version %@. Your settings and the Accessibility permission are kept.",
             release.version
         )
         if Self.isInProtectedFolder {

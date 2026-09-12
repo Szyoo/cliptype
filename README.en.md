@@ -29,7 +29,7 @@ GUI + resident menu bar icon, best for everyday use.
 1. Download `cliptype-vX.Y.Z-macos-app-universal.zip` (runs on both
    Apple Silicon and Intel).
 2. Unzip and drag **Cliptype.app** into your Applications folder.
-3. The app is not developer-signed yet — clear the quarantine flag before the
+3. The app is not notarized by Apple yet — clear the quarantine flag before the
    first launch:
 
    ```sh
@@ -47,9 +47,10 @@ Later versions **update themselves**: the app checks GitHub Releases on launch
 and every 24 hours (can be disabled in Settings), shows the release notes when
 a new version exists, and on confirmation downloads it, verifies the SHA-256,
 replaces the bundle and relaunches. "Check for Updates…" in the menu bar menu
-checks manually. Because the app is not developer-signed yet, each update
-requires granting the Accessibility permission once more (the prompt appears
-automatically after the relaunch).
+checks manually. Since 0.1.3 the app is signed with a stable certificate, so
+**the Accessibility permission survives updates** — no re-granting needed
+(upgrading from 0.1.2 or earlier requires one re-grant; see
+[Permissions](#permissions)).
 
 ### macOS · Option 2: terminal CLI
 
@@ -129,12 +130,13 @@ instead of pretending to succeed.
   don't pick up the new permission. For the CLI, **fully quit the terminal
   app** (⌘Q, not just closing the window) and reopen it; for the app, relaunch
   Cliptype.
-- **After an update or rebuild the switch is on but nothing works**: the app is
-  ad-hoc signed for now, so every build has a different signature. macOS ties
-  the permission record to the **old version's signature**, so the Cliptype row
-  looks enabled but the new build doesn't match it — and **turning the switch
-  off and on doesn't help**, because that only flips the "allowed" flag without
-  updating the recorded signature. You have to **recreate the record**:
+- **Upgraded from 0.1.2 or earlier to 0.1.3+ and the switch is on but nothing
+  works**: since 0.1.3 the app is signed with a stable certificate, so **updates
+  no longer require re-granting**; but coming from an ad-hoc-signed version the
+  signing requirement changed once, and macOS still ties the old grant to the
+  old signature — the Cliptype row looks enabled but the new build doesn't match
+  it, and **turning the switch off and on doesn't help**. This one time you have
+  to **recreate the record**:
 
   1. System Settings → Privacy & Security → Accessibility, select the
      **Cliptype** row
@@ -145,8 +147,12 @@ instead of pretending to succeed.
   After an in-app update, if the permission is still missing 12 seconds after
   the relaunch, Cliptype shows these steps itself with a "Remove the entry for
   me" button (equivalent to `tccutil reset Accessibility io.github.szyoo.cliptype`).
-  This goes away once the project is signed with an Apple Developer
-  certificate.
+  Updates between 0.1.3+ versions don't hit this anymore.
+- **"Cannot verify the developer" when opening**: the app is signed with the
+  project's own certificate and is not notarized by Apple, so Gatekeeper still
+  warns (that's why the install steps run `xattr -d com.apple.quarantine`).
+  This is unrelated to the permission; it goes away once the project has an
+  Apple Developer certificate and notarization.
 - **Why do some permissions offer an "Allow" button while Accessibility needs a
   trip to System Settings?** That's macOS policy: Accessibility, Input
   Monitoring, Screen Recording and Full Disk Access are high-risk permissions,
@@ -247,7 +253,8 @@ everyday macOS use, prefer the native app (Option 1).
 - [x] Status bar / tray UI (`--features tray`, macOS & Windows)
 - [x] Native macOS app (main window + menu bar, UI in en/zh-Hans/ja)
 - [x] Prebuilt releases: CLI for three platforms + macOS app (universal)
-- [ ] App signing & notarization (once an Apple Developer certificate is set up)
+- [x] Stable certificate signing (updates no longer require re-granting)
+- [ ] Apple notarization (removes the Gatekeeper warning; needs an Apple Developer certificate)
 - [ ] Native Windows UI
 
 ## Changelog

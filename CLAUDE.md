@@ -25,8 +25,10 @@ macOS 为主要开发平台。计划见 [docs/implementation-plan.md](docs/imple
   调用同捆 Rust 引擎；键入实现只在 Rust 侧维护）
 - [app/macos/.../Updater.swift](app/macos/Sources/CliptypeApp/Updater.swift) — 应用内更新（GitHub Releases
   latest → 下载 universal zip → sha256 校验 → bash 助手替换 .app 并重启；资产名后缀与 release.yml 耦合）
-- [scripts/bundle-macos.sh](scripts/bundle-macos.sh) — 组装 dist/Cliptype.app
-  （LSUIElement、ad-hoc 签名，TCC 授权 App 一处即可）
+- [scripts/bundle-macos.sh](scripts/bundle-macos.sh) — 组装 dist/Cliptype.app；用
+  `~/.config/cliptype-signing/` 的自签证书 "Cliptype Signing" 在临时钥匙串里签名
+  （DR 稳定 → 更新不丢授权；p12 必须备份、绝不入库；CI 用 Secrets
+  `MACOS_SIGNING_P12_BASE64/_PASSWORD`）。详见 AGENTS.md「签名」。
 
 ## 关键规则
 

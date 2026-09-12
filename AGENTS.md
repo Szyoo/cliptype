@@ -103,6 +103,32 @@
   依赖 compositor，README 已说明。
 - **Windows**：无需额外配置。
 
+## 签名（macOS 应用）
+
+- **为什么**：TCC 把辅助功能授权绑定在应用的签名要求（DR）上。ad-hoc 签名的 DR 是
+  内容哈希、每次构建都变 → 每次更新用户都要重新授权（客户投诉的根因）。证书签名的
+  DR 是 `identifier "io.github.szyoo.cliptype" and certificate root = H"<证书哈希>"`，
+  跨构建不变 → 授权永久有效（已实测：两个不同二进制 DR 完全相同）。
+- **证书**：自签代码签名证书 "Cliptype Signing"（RSA 2048，10 年，codeSigning EKU）。
+  本机存放 `~/.config/cliptype-signing/`（0700）：`cliptype-signing.p12`、
+  `p12-password.txt`、`cert.pem`、`key.pem`（均 0600）。**必须备份 p12 + 密码**——
+  丢失 = 只能换新证书 = 所有用户再重新授权一次。**绝不提交进仓库。**
+- **CI**：GitHub Secrets `MACOS_SIGNING_P12_BASE64`（p12 的 base64）与
+  `MACOS_SIGNING_P12_PASSWORD`。release.yml 把 p12 写到 `$RUNNER_TEMP` 并设
+  `CODESIGN_P12`，其余交给脚本；Secrets 缺失（fork）时自动退回 ad-hoc。
+- **脚本**：[scripts/bundle-macos.sh](scripts/bundle-macos.sh) 自动发现 p12
+  （或 `CODESIGN_P12` / `CODESIGN_P12_PASSWORD` 环境变量），在**一次性临时钥匙串**里
+  导入并签名（`--timestamp=none`，自签无 TSA），结束删除。不碰登录钥匙串 → 不弹
+  「codesign 想访问密钥」对话框。codesign 本身**不需要**系统信任这张证书。
+- **注意**：p12 必须用旧式算法导出（`-certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES
+  -macalg sha1`），OpenSSL 3 默认的 AES/PBKDF2 导出 macOS `security import` 会报
+  "MAC verification failed"。
+- **更新助手不得再 `tccutil reset`**（会丢掉有效授权）。从 ≤0.1.2 升级的一次性失效
+  由 12 秒后的引导弹窗处理。
+- **升级到 Apple Developer ID**：只需替换 p12（Developer ID Application 证书）、
+  去掉 `--timestamp=none`、加 notarytool 公证步骤；DR 换成 Team ID 形式，用户再重新
+  授权一次即可，之后 Gatekeeper 提示也消失。
+
 ## 工程流程
 
 - **会话内**：非平凡的多步任务用 TaskCreate/TaskUpdate 跟踪，完成即时标记。

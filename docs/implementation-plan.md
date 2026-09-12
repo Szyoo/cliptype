@@ -49,9 +49,9 @@
 2. ✅ 打字速度预设：`--speed fast|normal|slow` 映射 0/20/50ms（与托盘菜单一致）。
 3. ⬜ **v0.1.0 正式 tag：等用户在真机亲自验证单次/热键/托盘模式后再打。**
 4. ⬜（可选）发布到 crates.io / Homebrew tap。
-5. ⬜（可选，远期）macOS .app bundle + 签名公证 / Windows 安装器——需要付费开发者
-   证书（Apple Developer $99/年、Windows 代码签名证书），当前 CLI 阶段用 tar.gz/zip
-   内置裸二进制是标准做法（ripgrep/fd/gh 同款）。
+5. ✅ 2026-09-13 macOS 应用**自签证书签名**（"Cliptype Signing"，本地 + CI 同一套
+   临时钥匙串流程）：签名要求跨版本稳定，应用内更新不再需要重新授权。
+   ⬜ Apple Developer ID + 公证（消除 Gatekeeper 提示）；⬜ Windows 代码签名。
 
 ## Phase 5: 平台原生应用（最终形态）
 
@@ -72,7 +72,7 @@ App 本体，用户只需授权 Cliptype.app 一处，子进程引擎自动继�
 2. ⬜ 任意热键录制 UI（当前为预设列表）、开机自启（SMAppService）。
    ✅ 2026-08-12 应用图标：assets/appicon.svg 源 + scripts/make-icon.sh
    （qlmanage+sips+iconutil，纯系统工具）生成 app/macos/AppIcon.icns。
-3. ⬜ release workflow 增加 .app 产物（zip）；将来配开发者证书做签名+公证+dmg。
+3. ✅ release workflow 产出 .app（universal zip）；✅ 2026-09-13 自签证书签名；⬜ Apple 公证 + dmg。
 4. ⬜ Windows 原生界面（当前沿用 Rust tray exe 作为 Windows 界面）。
 
 ## Phase 6: 剪贴板历史（macOS 应用）
