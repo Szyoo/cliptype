@@ -22,6 +22,10 @@
   - 一次性代价：从 ad-hoc 版（≤0.1.2）升级时用户需重新授权一次（− / +），之后永久。
   - 坑 3（CI）：runner 的旧版 macOS 上 codesign 仅凭 `--keychain` 找不到 identity
     （"no identity found"），必须把临时钥匙串加入用户搜索列表；脚本结束时恢复原列表。
+- **最终现场验证通过（用户本机）**：用户重新授权一次后，连续用不同内容重新打包
+  （CDHash 420f… → 5f46… → 420f…，三个不同构建），每次重启 App 都仍是 TRUSTED、
+  热键键入正常，**全程未再碰系统设置**。证书私钥 + 密码 + 说明已备份到用户 iCloud 云盘
+  「Cliptype 签名证书（勿删）」（GitHub Secrets 只写不可读，本机与 iCloud 是唯二可恢复副本）。
 - **v0.1.3 发布**（用户拍板"打包发布"）：https://github.com/Szyoo/cliptype/releases/tag/v0.1.3
   内容 = 证书签名 + 剪贴板历史基础版 + 可缩放窗口 + `--stdin`。CI 签出的 App
   `Authority=Cliptype Signing`，DR 与本地构建完全一致（`certificate root = H"f3a4…"`），
