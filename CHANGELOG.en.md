@@ -20,6 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   remote desktops, VMs), screen center, and **custom** (drag the panel
   anywhere; the position is saved on release and can be reset). Requires
   clipboard history to be enabled in Settings.
+- **Record your own shortcuts**: both hotkeys (type clipboard, history panel)
+  are no longer limited to presets — click the shortcut button and press any
+  combination (at least one of ⌃⌥⇧⌘). A clear message appears if another app
+  already owns it, and one click restores the default. Presets chosen in
+  earlier versions are migrated automatically.
+- The history panel's item count is configurable (3–9, default 9); the digit
+  shortcuts and the panel height follow it.
 
 ## [0.1.3] - 2026-09-13
 

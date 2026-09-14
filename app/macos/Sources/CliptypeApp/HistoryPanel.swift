@@ -38,11 +38,22 @@ final class HistoryPanelModel: ObservableObject {
     @Published var query = ""
     @Published var selectedIndex = 0
 
+    /// パネルに出す件数（3〜9、既定 9）。数字キー 1〜N と一致させる。
+    static var storedMaxItems: Int {
+        get {
+            let v = UserDefaults.standard.integer(forKey: "panelMaxItems")
+            return (3...9).contains(v) ? v : 9
+        }
+        set { UserDefaults.standard.set(min(max(newValue, 3), 9), forKey: "panelMaxItems") }
+    }
+
+    var maxItems: Int { Self.storedMaxItems }
+
     var filtered: [ClipEntry] {
         let all = ClipboardHistory.shared.entries
         let q = query.trimmingCharacters(in: .whitespaces)
-        if q.isEmpty { return all }
-        return all.filter { $0.text.localizedCaseInsensitiveContains(q) }
+        let matched = q.isEmpty ? all : all.filter { $0.text.localizedCaseInsensitiveContains(q) }
+        return Array(matched.prefix(maxItems))
     }
 }
 
@@ -57,7 +68,9 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
     static let shared = HistoryPanelController()
 
     static let panelWidth: CGFloat = 440
-    static let panelHeight: CGFloat = 380
+    /// 検索欄 + N 行 + フッターに合わせた高さ（行 48pt）。
+    static func panelHeight(items: Int) -> CGFloat { 44 + CGFloat(items) * 48 + 16 + 34 }
+    var panelHeight: CGFloat { Self.panelHeight(items: model.maxItems) }
 
     let model = HistoryPanelModel()
     private var panel: HistoryPanel?
@@ -81,6 +94,8 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
         model.selectedIndex = 0
 
         panel.isMovableByWindowBackground = (PanelPosition.current == .custom)
+        // 表示件数の設定に合わせて高さを更新してから位置を決める
+        panel.setContentSize(NSSize(width: Self.panelWidth, height: panelHeight))
         shownAt = Date()
         panel.setFrameOrigin(originFor(PanelPosition.current, size: panel.frame.size))
         panel.alphaValue = 0
@@ -125,7 +140,7 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
     // MARK: - パネル生成
 
     private func makePanel() -> HistoryPanel {
-        let size = NSSize(width: Self.panelWidth, height: Self.panelHeight)
+        let size = NSSize(width: Self.panelWidth, height: panelHeight)
         let panel = HistoryPanel(
             contentRect: NSRect(origin: .zero, size: size),
             styleMask: [.nonactivatingPanel, .titled, .fullSizeContentView, .utilityWindow],
@@ -202,7 +217,7 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
         }
         // 数字キー: 検索語が空のとき（または ⌘ 付き）は 1〜9 で直接選択
         if let ch = event.charactersIgnoringModifiers, ch.count == 1,
-            let digit = Int(ch), (1...9).contains(digit),
+            let digit = Int(ch), (1...model.maxItems).contains(digit),
             model.query.isEmpty || cmd
         {
             confirm(index: digit - 1)

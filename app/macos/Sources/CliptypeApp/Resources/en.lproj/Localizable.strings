@@ -85,3 +85,12 @@
 "Reset position" = "Reset position";
 "Press the hotkey, pick an item with 1–9 or ↑↓ and Return, and it is typed into the focused field. ⌘Return copies it instead." = "Press the hotkey, pick an item with 1–9 or ↑↓ and Return, and it is typed into the focused field. ⌘Return copies it instead.";
 "History panel" = "History panel";
+
+/* ホットキー録音 */
+"Press keys…" = "Press keys…";
+"Click, then press the new shortcut. Esc cancels." = "Click, then press the new shortcut. Esc cancels.";
+"Default" = "Default";
+"Type clipboard" = "Type clipboard";
+"%@ could not be registered — another app is probably using it. Pick a different shortcut." = "%@ could not be registered — another app is probably using it. Pick a different shortcut.";
+"Focus the target field, press the hotkey, and the clipboard text is typed in. Click the shortcut to record a new one (at least one of ⌃⌥⇧⌘ is required)." = "Focus the target field, press the hotkey, and the clipboard text is typed in. Click the shortcut to record a new one (at least one of ⌃⌥⇧⌘ is required).";
+"Items shown" = "Items shown";

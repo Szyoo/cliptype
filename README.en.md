@@ -40,7 +40,8 @@ GUI + resident menu bar icon, best for everyday use.
    go to **System Settings → Privacy & Security → Accessibility** and enable
    **Cliptype** (this single entry also covers the bundled typing engine).
 5. Copy some text → focus the target field → press <kbd>⌃⇧V</kbd>.
-   The hotkey and typing speed are configurable in the main window or via the
+   The hotkey (click the shortcut button and press any combination to record
+   a new one) and typing speed are configurable in the main window or via the
    menu bar icon → Settings.
 
 Later versions **update themselves**: the app checks GitHub Releases on launch
@@ -53,7 +54,7 @@ checks manually. Since 0.1.3 the app is signed with a stable certificate, so
 [Permissions](#permissions)).
 
 **Clipboard history (optional)**: once enabled in Settings, <kbd>⌃⇧H</kbd> opens
-a history panel; press 1–9 or ↑↓ + Return to type the chosen item straight into
+a history panel; press 1–9 (3–9 items shown, configurable) or ↑↓ + Return to type the chosen item straight into
 the focused field, or ⌘Return to copy it. The panel sits below the menu bar
 icon by default and can instead follow the text cursor, sit at screen center,
 or be dragged anywhere you like. History stays on this Mac and is off by

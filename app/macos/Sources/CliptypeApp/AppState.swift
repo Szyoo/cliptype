@@ -3,16 +3,6 @@
 
 import SwiftUI
 
-/// ホットキーのプリセット。任意キー録音 UI は将来課題とし、まずは定番の組み合わせから選ぶ。
-struct HotkeyPreset: Identifiable, Equatable {
-    let id: String
-    let label: String
-    /// Carbon の仮想キーコード
-    let keyCode: UInt32
-    /// Carbon の修飾キーフラグ（controlKey / shiftKey / optionKey / cmdKey の組み合わせ）
-    let modifiers: UInt32
-}
-
 @MainActor
 final class AppState: ObservableObject {
     static let shared = AppState()
@@ -24,30 +14,9 @@ final class AppState: ObservableObject {
         (L("Careful (50 ms per key)"), 50),
     ]
 
-    /// 選べるホットキー。keyCode 9 = V, 11 = B, 35 = P（US 配列の仮想キーコード）
-    static let hotkeyPresets: [HotkeyPreset] = [
-        HotkeyPreset(
-            id: "ctrl-shift-v", label: "⌃⇧V", keyCode: 9,
-            modifiers: UInt32(controlKey | shiftKey)
-        ),
-        HotkeyPreset(
-            id: "ctrl-opt-v", label: "⌃⌥V", keyCode: 9,
-            modifiers: UInt32(controlKey | optionKey)
-        ),
-        HotkeyPreset(
-            id: "cmd-shift-b", label: "⌘⇧B", keyCode: 11,
-            modifiers: UInt32(cmdKey | shiftKey)
-        ),
-        HotkeyPreset(
-            id: "ctrl-shift-p", label: "⌃⇧P", keyCode: 35,
-            modifiers: UInt32(controlKey | shiftKey)
-        ),
-    ]
-
     @AppStorage("intervalMs") var intervalMs: Int = 0
     /// 実キーコードモード（VNC / リモートコンソール / VM 向け）
     @AppStorage("keycodeMode") var keycodeMode: Bool = false
-    @AppStorage("hotkeyPresetId") private var hotkeyPresetId: String = "ctrl-shift-v"
 
     @Published var isPaused = false
 
@@ -104,66 +73,76 @@ final class AppState: ObservableObject {
         }
     }
 
-    var hotkeyPreset: HotkeyPreset {
-        Self.hotkeyPresets.first { $0.id == hotkeyPresetId } ?? Self.hotkeyPresets[0]
+    // MARK: - ホットキー（ユーザーが自由に録音）
+
+    @AppStorage("hotkeyCombo") private var hotkeyComboStorage: String = ""
+    @AppStorage("panelHotkeyCombo") private var panelHotkeyComboStorage: String = ""
+    /// 登録失敗（他アプリと衝突）の表示用
+    @Published private(set) var hotkeyError: String?
+    @Published private(set) var panelHotkeyError: String?
+
+    /// クリップボードを入力するホットキー（既定 ⌃⇧V）。
+    var hotkeyCombo: KeyCombo {
+        get { KeyCombo(storageString: hotkeyComboStorage) ?? Self.migratedLegacy("hotkeyPresetId") ?? .defaultType }
+        set {
+            hotkeyComboStorage = newValue.storageString
+            objectWillChange.send()
+            activateHotkey()
+        }
     }
 
-    /// 設定ウィンドウからの変更用。再登録まで面倒を見る。
-    var hotkeySelection: String {
-        get { hotkeyPresetId }
+    /// 履歴パネルを出すホットキー（既定 ⌃⇧H）。
+    var panelHotkeyCombo: KeyCombo {
+        get { KeyCombo(storageString: panelHotkeyComboStorage) ?? Self.migratedLegacy("panelHotkeyPresetId") ?? .defaultPanel }
         set {
-            hotkeyPresetId = newValue
-            activateHotkey()
+            panelHotkeyComboStorage = newValue.storageString
             objectWillChange.send()
+            activatePanelHotkey()
+        }
+    }
+
+    /// 旧バージョンのプリセット id（UserDefaults）からの移行。
+    private static func migratedLegacy(_ key: String) -> KeyCombo? {
+        guard let id = UserDefaults.standard.string(forKey: key) else { return nil }
+        return KeyCombo(legacyPresetID: id)
+    }
+
+    /// 録音中は既存のホットキーを外し、終わったら戻す。
+    func suspendHotkeys(_ suspended: Bool) {
+        if suspended {
+            hotkeyManager.unregister(id: 1)
+            hotkeyManager.unregister(id: 2)
+        } else {
+            activateHotkey()
         }
     }
 
     /// 現在の設定でホットキーを（再）登録する。
     func activateHotkey() {
-        let preset = hotkeyPreset
+        let combo = hotkeyCombo
         do {
-            try hotkeyManager.register(id: 1, keyCode: preset.keyCode, modifiers: preset.modifiers) {
+            try hotkeyManager.register(id: 1, keyCode: combo.keyCode, modifiers: combo.modifiers) {
                 Task { @MainActor in AppState.shared.handleHotkey() }
             }
-            NSLog("cliptype: hotkey registered: \(preset.label)")
+            hotkeyError = nil
+            NSLog("cliptype: hotkey registered: \(combo.label)")
         } catch {
+            hotkeyError = L("%@ could not be registered — another app is probably using it. Pick a different shortcut.", combo.label)
             NSLog("cliptype: failed to register hotkey: \(error.localizedDescription)")
         }
         activatePanelHotkey()
     }
 
-    // MARK: - 履歴パネル
-
-    /// 履歴パネルを呼び出すホットキー（H キー = keyCode 4）。
-    static let panelHotkeyPresets: [HotkeyPreset] = [
-        HotkeyPreset(id: "ctrl-shift-h", label: "⌃⇧H", keyCode: 4, modifiers: UInt32(controlKey | shiftKey)),
-        HotkeyPreset(id: "ctrl-opt-h", label: "⌃⌥H", keyCode: 4, modifiers: UInt32(controlKey | optionKey)),
-        HotkeyPreset(id: "cmd-shift-h", label: "⌘⇧H", keyCode: 4, modifiers: UInt32(cmdKey | shiftKey)),
-    ]
-
-    @AppStorage("panelHotkeyPresetId") private var panelHotkeyPresetId: String = "ctrl-shift-h"
-
-    var panelHotkeyPreset: HotkeyPreset {
-        Self.panelHotkeyPresets.first { $0.id == panelHotkeyPresetId } ?? Self.panelHotkeyPresets[0]
-    }
-
-    var panelHotkeySelection: String {
-        get { panelHotkeyPresetId }
-        set {
-            panelHotkeyPresetId = newValue
-            activatePanelHotkey()
-            objectWillChange.send()
-        }
-    }
-
     private func activatePanelHotkey() {
-        let preset = panelHotkeyPreset
+        let combo = panelHotkeyCombo
         do {
-            try hotkeyManager.register(id: 2, keyCode: preset.keyCode, modifiers: preset.modifiers) {
+            try hotkeyManager.register(id: 2, keyCode: combo.keyCode, modifiers: combo.modifiers) {
                 Task { @MainActor in HistoryPanelController.shared.toggle() }
             }
-            NSLog("cliptype: panel hotkey registered: \(preset.label)")
+            panelHotkeyError = nil
+            NSLog("cliptype: panel hotkey registered: \(combo.label)")
         } catch {
+            panelHotkeyError = L("%@ could not be registered — another app is probably using it. Pick a different shortcut.", combo.label)
             NSLog("cliptype: failed to register panel hotkey: \(error.localizedDescription)")
         }
     }
