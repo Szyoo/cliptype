@@ -7,6 +7,20 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Clipboard history panel**: a hotkey (⌃⇧H by default; ⌃⌥H / ⌘⇧H available)
+  opens a floating panel listing recent items numbered 1–9. Press a digit or
+  ↑↓ + Return to **type the item straight into the focused field** (the
+  clipboard is left alone); ⌘Return copies it instead; type to filter; Esc or
+  clicking elsewhere closes it. The panel never steals focus from the target
+  app. Four positions: **below the menu bar icon (default)**, near the text
+  cursor (falls back to the icon when the app doesn't expose the cursor — VNC,
+  remote desktops, VMs), screen center, and **custom** (drag the panel
+  anywhere; the position is saved on release and can be reset). Requires
+  clipboard history to be enabled in Settings.
+
 ## [0.1.3] - 2026-09-13
 
 ### Changed

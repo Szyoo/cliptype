@@ -77,3 +77,25 @@
 "%d items stored" = "%d 件を保存中";
 "Clear history" = "履歴を消去";
 "No items yet" = "まだ項目がありません";
+
+/* 履歴パネル */
+"Search history" = "履歴を検索";
+"History is off" = "履歴はオフ";
+"Turn on clipboard history in Settings to use this panel." = "設定でクリップボード履歴をオンにすると、このパネルを使えます。";
+"type" = "入力";
+"copy" = "コピー";
+"pick" = "選択";
+"close" = "閉じる";
+"Drag to move" = "ドラッグで移動";
+"%d characters · %@" = "%d 文字 · %@";
+"Panel hotkey" = "パネルのホットキー";
+"Panel position" = "パネルの位置";
+"Below the menu bar icon" = "メニューバーアイコンの下";
+"Near the text cursor" = "テキストカーソルの近く";
+"Screen center" = "画面中央";
+"Custom" = "カスタム";
+"Uses the Accessibility API to find the cursor. Apps that don't expose it (VNC, remote desktops, VMs, terminals) fall back to the menu bar icon." = "アクセシビリティ API でカーソル位置を取得します。取得できないアプリ（VNC・リモートデスクトップ・VM・ターミナル）ではメニューバーアイコンの下に表示します。";
+"Open the panel with the hotkey, then drag it anywhere. The position is saved when you let go." = "ホットキーでパネルを出し、好きな場所へドラッグしてください。離した位置が保存されます。";
+"Reset position" = "位置をリセット";
+"Press the hotkey, pick an item with 1–9 or ↑↓ and Return, and it is typed into the focused field. ⌘Return copies it instead." = "ホットキーを押し、1〜9 または ↑↓ と Return で項目を選ぶと、フォーカス中の入力欄に入力されます。⌘Return はクリップボードへコピーするだけです。";
+"History panel" = "履歴パネル";

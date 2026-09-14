@@ -85,6 +85,43 @@ struct SettingsView: View {
                 Text(L("Clipboard history"))
             }
 
+            if history.isEnabled {
+                Section {
+                    Picker(L("Panel hotkey"), selection: panelHotkeyBinding) {
+                        ForEach(AppState.panelHotkeyPresets) { preset in
+                            Text(preset.label).tag(preset.id)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    Picker(L("Panel position"), selection: panelPositionBinding) {
+                        Text(L("Below the menu bar icon")).tag(PanelPosition.statusItem)
+                        Text(L("Near the text cursor")).tag(PanelPosition.caret)
+                        Text(L("Screen center")).tag(PanelPosition.center)
+                        Text(L("Custom")).tag(PanelPosition.custom)
+                    }
+                    switch panelPosition {
+                    case .caret:
+                        Text(L("Uses the Accessibility API to find the cursor. Apps that don't expose it (VNC, remote desktops, VMs, terminals) fall back to the menu bar icon."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    case .custom:
+                        Text(L("Open the panel with the hotkey, then drag it anywhere. The position is saved when you let go."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Button(L("Reset position")) {
+                            HistoryPanelController.shared.resetCustomPosition()
+                        }
+                    default:
+                        EmptyView()
+                    }
+                    Text(L("Press the hotkey, pick an item with 1–9 or ↑↓ and Return, and it is typed into the focused field. ⌘Return copies it instead."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } header: {
+                    Text(L("History panel"))
+                }
+            }
+
             Section {
                 if state.axTrusted {
                     Label(L("Accessibility permission granted"), systemImage: "checkmark.circle.fill")
@@ -142,6 +179,22 @@ struct SettingsView: View {
         // 高さは固定しない: 内容がウィンドウより長ければグループ化フォームが
         // 自前でスクロールする。ウィンドウ側で最小サイズだけ決める。
         .frame(minWidth: 440, idealWidth: 480, minHeight: 320)
+    }
+
+    @State private var panelPosition: PanelPosition = PanelPosition.current
+
+    private var panelHotkeyBinding: Binding<String> {
+        Binding(
+            get: { state.panelHotkeySelection },
+            set: { state.panelHotkeySelection = $0 }
+        )
+    }
+
+    private var panelPositionBinding: Binding<PanelPosition> {
+        Binding(
+            get: { panelPosition },
+            set: { panelPosition = $0; PanelPosition.current = $0 }
+        )
     }
 
     private var hotkeyBinding: Binding<String> {

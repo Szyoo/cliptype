@@ -52,6 +52,13 @@ checks manually. Since 0.1.3 the app is signed with a stable certificate, so
 (upgrading from 0.1.2 or earlier requires one re-grant; see
 [Permissions](#permissions)).
 
+**Clipboard history (optional)**: once enabled in Settings, <kbd>⌃⇧H</kbd> opens
+a history panel; press 1–9 or ↑↓ + Return to type the chosen item straight into
+the focused field, or ⌘Return to copy it. The panel sits below the menu bar
+icon by default and can instead follow the text cursor, sit at screen center,
+or be dragged anywhere you like. History stays on this Mac and is off by
+default.
+
 ### macOS · Option 2: terminal CLI
 
 No GUI — for developers and scripting.

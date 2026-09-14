@@ -1,15 +1,14 @@
 // Carbon RegisterEventHotKey の薄いラッパー。
-// グローバルホットキーの押下を onPressed コールバックで通知する。
+// 複数のグローバルホットキーを id で登録し、押下を個別のコールバックで通知する
+// （id 1 = クリップボード入力、id 2 = 履歴パネル）。
 
 import Carbon.HIToolbox
 import Foundation
 
 final class HotkeyManager {
-    private var hotKeyRef: EventHotKeyRef?
     private var handlerRef: EventHandlerRef?
-
-    /// ホットキー押下時に呼ばれる（Carbon のイベントスレッド = メインスレッド）。
-    var onPressed: (() -> Void)?
+    private var refs: [UInt32: EventHotKeyRef] = [:]
+    private var callbacks: [UInt32: () -> Void] = [:]
 
     enum HotkeyError: LocalizedError {
         case installHandler(OSStatus)
@@ -23,54 +22,58 @@ final class HotkeyManager {
         }
     }
 
-    /// 既存の登録を解除して、新しい組み合わせを登録する。
-    func register(keyCode: UInt32, modifiers: UInt32) throws {
-        unregister()
+    /// `id` の既存登録を解除して、新しい組み合わせを登録する。
+    func register(id: UInt32, keyCode: UInt32, modifiers: UInt32, onPressed: @escaping () -> Void) throws {
+        unregister(id: id)
+        try installHandlerIfNeeded()
 
-        if handlerRef == nil {
-            var eventType = EventTypeSpec(
-                eventClass: OSType(kEventClassKeyboard),
-                eventKind: UInt32(kEventHotKeyPressed)
-            )
-            let status = InstallEventHandler(
-                GetApplicationEventTarget(),
-                { _, _, userData in
-                    guard let userData else { return noErr }
-                    let manager = Unmanaged<HotkeyManager>.fromOpaque(userData).takeUnretainedValue()
-                    manager.onPressed?()
-                    return noErr
-                },
-                1,
-                &eventType,
-                Unmanaged.passUnretained(self).toOpaque(),
-                &handlerRef
-            )
-            guard status == noErr else { throw HotkeyError.installHandler(status) }
-        }
-
-        let hotKeyID = EventHotKeyID(signature: OSType(0x434C_5054) /* "CLPT" */, id: 1)
+        var ref: EventHotKeyRef?
+        let hotKeyID = EventHotKeyID(signature: OSType(0x434C_5054) /* "CLPT" */, id: id)
         let status = RegisterEventHotKey(
-            keyCode,
-            modifiers,
-            hotKeyID,
-            GetApplicationEventTarget(),
-            0,
-            &hotKeyRef
-        )
-        guard status == noErr else { throw HotkeyError.register(status) }
+            keyCode, modifiers, hotKeyID, GetApplicationEventTarget(), 0, &ref)
+        guard status == noErr, let ref else { throw HotkeyError.register(status) }
+        refs[id] = ref
+        callbacks[id] = onPressed
     }
 
-    func unregister() {
-        if let ref = hotKeyRef {
+    func unregister(id: UInt32) {
+        if let ref = refs.removeValue(forKey: id) {
             UnregisterEventHotKey(ref)
-            hotKeyRef = nil
         }
+        callbacks.removeValue(forKey: id)
+    }
+
+    private func installHandlerIfNeeded() throws {
+        guard handlerRef == nil else { return }
+        var eventType = EventTypeSpec(
+            eventClass: OSType(kEventClassKeyboard),
+            eventKind: UInt32(kEventHotKeyPressed)
+        )
+        let status = InstallEventHandler(
+            GetApplicationEventTarget(),
+            { _, event, userData in
+                guard let userData, let event else { return noErr }
+                let manager = Unmanaged<HotkeyManager>.fromOpaque(userData).takeUnretainedValue()
+                // どのホットキーが押されたかは EventHotKeyID から判別する
+                var hotKeyID = EventHotKeyID()
+                let err = GetEventParameter(
+                    event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID),
+                    nil, MemoryLayout<EventHotKeyID>.size, nil, &hotKeyID)
+                if err == noErr {
+                    manager.callbacks[hotKeyID.id]?()
+                }
+                return noErr
+            },
+            1,
+            &eventType,
+            Unmanaged.passUnretained(self).toOpaque(),
+            &handlerRef
+        )
+        guard status == noErr else { throw HotkeyError.installHandler(status) }
     }
 
     deinit {
-        unregister()
-        if let ref = handlerRef {
-            RemoveEventHandler(ref)
-        }
+        for ref in refs.values { UnregisterEventHotKey(ref) }
+        if let ref = handlerRef { RemoveEventHandler(ref) }
     }
 }

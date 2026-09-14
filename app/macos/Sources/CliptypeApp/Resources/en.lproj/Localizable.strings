@@ -63,3 +63,25 @@
 "%d items stored" = "%d items stored";
 "Clear history" = "Clear history";
 "No items yet" = "No items yet";
+
+/* 履歴パネル */
+"Search history" = "Search history";
+"History is off" = "History is off";
+"Turn on clipboard history in Settings to use this panel." = "Turn on clipboard history in Settings to use this panel.";
+"type" = "type";
+"copy" = "copy";
+"pick" = "pick";
+"close" = "close";
+"Drag to move" = "Drag to move";
+"%d characters · %@" = "%d characters · %@";
+"Panel hotkey" = "Panel hotkey";
+"Panel position" = "Panel position";
+"Below the menu bar icon" = "Below the menu bar icon";
+"Near the text cursor" = "Near the text cursor";
+"Screen center" = "Screen center";
+"Custom" = "Custom";
+"Uses the Accessibility API to find the cursor. Apps that don't expose it (VNC, remote desktops, VMs, terminals) fall back to the menu bar icon." = "Uses the Accessibility API to find the cursor. Apps that don't expose it (VNC, remote desktops, VMs, terminals) fall back to the menu bar icon.";
+"Open the panel with the hotkey, then drag it anywhere. The position is saved when you let go." = "Open the panel with the hotkey, then drag it anywhere. The position is saved when you let go.";
+"Reset position" = "Reset position";
+"Press the hotkey, pick an item with 1–9 or ↑↓ and Return, and it is typed into the focused field. ⌘Return copies it instead." = "Press the hotkey, pick an item with 1–9 or ↑↓ and Return, and it is typed into the focused field. ⌘Return copies it instead.";
+"History panel" = "History panel";

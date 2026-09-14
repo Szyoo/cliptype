@@ -77,3 +77,25 @@
 "%d items stored" = "已保存 %d 条";
 "Clear history" = "清空历史";
 "No items yet" = "暂无记录";
+
+/* 履歴パネル */
+"Search history" = "搜索历史";
+"History is off" = "历史已关闭";
+"Turn on clipboard history in Settings to use this panel." = "在设置中开启剪贴板历史后即可使用此面板。";
+"type" = "键入";
+"copy" = "复制";
+"pick" = "选择";
+"close" = "关闭";
+"Drag to move" = "拖动可移动";
+"%d characters · %@" = "%d 字 · %@";
+"Panel hotkey" = "面板热键";
+"Panel position" = "面板位置";
+"Below the menu bar icon" = "菜单栏图标下方";
+"Near the text cursor" = "文本光标附近";
+"Screen center" = "屏幕中央";
+"Custom" = "自定义";
+"Uses the Accessibility API to find the cursor. Apps that don't expose it (VNC, remote desktops, VMs, terminals) fall back to the menu bar icon." = "通过辅助功能接口获取光标位置。不提供该信息的应用（VNC、远程桌面、虚拟机、终端）会回退到菜单栏图标下方。";
+"Open the panel with the hotkey, then drag it anywhere. The position is saved when you let go." = "用热键呼出面板后，直接把它拖到任意位置，松手即保存。";
+"Reset position" = "重置位置";
+"Press the hotkey, pick an item with 1–9 or ↑↓ and Return, and it is typed into the focused field. ⌘Return copies it instead." = "按下热键，用 1–9 或 ↑↓ 加回车选择条目，即可键入到当前聚焦的输入框；⌘回车则只复制到剪贴板。";
+"History panel" = "历史面板";

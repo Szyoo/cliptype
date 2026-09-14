@@ -121,16 +121,50 @@ final class AppState: ObservableObject {
     /// 現在の設定でホットキーを（再）登録する。
     func activateHotkey() {
         let preset = hotkeyPreset
-        hotkeyManager.onPressed = { [weak self] in
-            Task { @MainActor in
-                self?.handleHotkey()
-            }
-        }
         do {
-            try hotkeyManager.register(keyCode: preset.keyCode, modifiers: preset.modifiers)
+            try hotkeyManager.register(id: 1, keyCode: preset.keyCode, modifiers: preset.modifiers) {
+                Task { @MainActor in AppState.shared.handleHotkey() }
+            }
             NSLog("cliptype: hotkey registered: \(preset.label)")
         } catch {
             NSLog("cliptype: failed to register hotkey: \(error.localizedDescription)")
+        }
+        activatePanelHotkey()
+    }
+
+    // MARK: - 履歴パネル
+
+    /// 履歴パネルを呼び出すホットキー（H キー = keyCode 4）。
+    static let panelHotkeyPresets: [HotkeyPreset] = [
+        HotkeyPreset(id: "ctrl-shift-h", label: "⌃⇧H", keyCode: 4, modifiers: UInt32(controlKey | shiftKey)),
+        HotkeyPreset(id: "ctrl-opt-h", label: "⌃⌥H", keyCode: 4, modifiers: UInt32(controlKey | optionKey)),
+        HotkeyPreset(id: "cmd-shift-h", label: "⌘⇧H", keyCode: 4, modifiers: UInt32(cmdKey | shiftKey)),
+    ]
+
+    @AppStorage("panelHotkeyPresetId") private var panelHotkeyPresetId: String = "ctrl-shift-h"
+
+    var panelHotkeyPreset: HotkeyPreset {
+        Self.panelHotkeyPresets.first { $0.id == panelHotkeyPresetId } ?? Self.panelHotkeyPresets[0]
+    }
+
+    var panelHotkeySelection: String {
+        get { panelHotkeyPresetId }
+        set {
+            panelHotkeyPresetId = newValue
+            activatePanelHotkey()
+            objectWillChange.send()
+        }
+    }
+
+    private func activatePanelHotkey() {
+        let preset = panelHotkeyPreset
+        do {
+            try hotkeyManager.register(id: 2, keyCode: preset.keyCode, modifiers: preset.modifiers) {
+                Task { @MainActor in HistoryPanelController.shared.toggle() }
+            }
+            NSLog("cliptype: panel hotkey registered: \(preset.label)")
+        } catch {
+            NSLog("cliptype: failed to register panel hotkey: \(error.localizedDescription)")
         }
     }
 
