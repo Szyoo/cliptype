@@ -23,12 +23,25 @@ struct HotkeyRecorderView: View {
             Button {
                 recording ? stopRecording() : startRecording()
             } label: {
-                Text(recording ? L("Press keys…") : combo.label)
-                    .font(.body.monospaced())
-                    .frame(minWidth: 96)
+                if recording {
+                    Text(L("Press keys…"))
+                        .foregroundStyle(Color.accentColor)
+                        .frame(minWidth: 140)
+                } else {
+                    KeyComboChips(combo: combo)
+                }
             }
-            .buttonStyle(.bordered)
-            .tint(recording ? .accentColor : nil)
+            .buttonStyle(.plain)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(
+                RoundedRectangle(cornerRadius: 7)
+                    .fill(Color(nsColor: .controlBackgroundColor))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 7)
+                    .stroke(recording ? Color.accentColor : Color.secondary.opacity(0.3), lineWidth: recording ? 1.5 : 1)
+            )
             .help(L("Click, then press the new shortcut. Esc cancels."))
             if combo != defaultCombo {
                 Button(L("Default")) {
@@ -69,5 +82,48 @@ struct HotkeyRecorderView: View {
             recording = false
             onRecordingChanged(false)
         }
+    }
+}
+
+
+/// キーの組み合わせをキーキャップ風のチップで描く（[⌃ Control] + [⇧ Shift] + [V]）。
+struct KeyComboChips: View {
+    let combo: KeyCombo
+
+    var body: some View {
+        HStack(spacing: 5) {
+            let parts = combo.parts
+            ForEach(Array(parts.enumerated()), id: \.offset) { index, part in
+                if index > 0 {
+                    Text("+")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                KeycapView(text: part)
+            }
+        }
+    }
+}
+
+/// 1 個のキーキャップ。
+struct KeycapView: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: 12, weight: .medium))
+            .lineLimit(1)
+            .fixedSize()
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3)
+            .background(
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(Color(nsColor: .windowBackgroundColor))
+                    .shadow(color: .black.opacity(0.18), radius: 0, x: 0, y: 1)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke(Color.secondary.opacity(0.4), lineWidth: 1)
+            )
     }
 }

@@ -22,7 +22,7 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
-                Text(L("Focus the target field, press the hotkey, and the clipboard text is typed in. Click the shortcut to record a new one (at least one of ⌃⌥⇧⌘ is required)."))
+                Text(L("Focus the target field, press the hotkey, and the clipboard text is typed in. Click the shortcut to record a new one — hold at least one of Control (⌃), Option (⌥), Shift (⇧) or Command (⌘) while pressing a key."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } header: {

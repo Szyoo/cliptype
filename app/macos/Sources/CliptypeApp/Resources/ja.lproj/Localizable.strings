@@ -106,5 +106,5 @@
 "Default" = "既定";
 "Type clipboard" = "クリップボードを入力";
 "%@ could not be registered — another app is probably using it. Pick a different shortcut." = "%@ を登録できませんでした。ほかのアプリが使っている可能性があります。別のショートカットを選んでください。";
-"Focus the target field, press the hotkey, and the clipboard text is typed in. Click the shortcut to record a new one (at least one of ⌃⌥⇧⌘ is required)." = "対象の入力欄にフォーカスしてホットキーを押すと、クリップボードのテキストが入力されます。ショートカットをクリックすると録音できます（⌃⌥⇧⌘ のいずれかが必要）。";
+"Focus the target field, press the hotkey, and the clipboard text is typed in. Click the shortcut to record a new one — hold at least one of Control (⌃), Option (⌥), Shift (⇧) or Command (⌘) while pressing a key." = "対象の入力欄にフォーカスしてホットキーを押すと、クリップボードのテキストが入力されます。ショートカットをクリックすると録音できます——Control (⌃)・Option (⌥)・Shift (⇧)・Command (⌘) のいずれかを押しながらキーを押してください。";
 "Items shown" = "表示件数";

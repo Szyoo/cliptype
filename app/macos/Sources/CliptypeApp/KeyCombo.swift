@@ -73,6 +73,35 @@ struct KeyCombo: Equatable {
         return s + Self.keyName(for: keyCode)
     }
 
+    /// キーキャップ表示用の部品: 修飾キーは「記号 + 名前」、最後にキー名。
+    /// macOS の記号（⌃⌥⇧⌘）に馴染みのないユーザーでも読めるようにする。
+    var parts: [String] {
+        // 修飾キーが 3 つ以上なら横幅が足りないので短い名前にする
+        let short = modifierCount >= 3
+        var out: [String] = []
+        if modifiers & UInt32(controlKey) != 0 { out.append(short ? "⌃ Ctrl" : "⌃ Control") }
+        if modifiers & UInt32(optionKey) != 0 { out.append(short ? "⌥ Opt" : "⌥ Option") }
+        if modifiers & UInt32(shiftKey) != 0 { out.append("⇧ Shift") }
+        if modifiers & UInt32(cmdKey) != 0 { out.append(short ? "⌘ Cmd" : "⌘ Command") }
+        out.append(Self.keyName(for: keyCode))
+        return out
+    }
+
+    var modifierCount: Int {
+        [controlKey, optionKey, shiftKey, cmdKey].filter { modifiers & UInt32($0) != 0 }.count
+    }
+
+    /// "Control + Shift + V" のような読み上げ形式（記号なし）。
+    var spokenLabel: String {
+        var out: [String] = []
+        if modifiers & UInt32(controlKey) != 0 { out.append("Control") }
+        if modifiers & UInt32(optionKey) != 0 { out.append("Option") }
+        if modifiers & UInt32(shiftKey) != 0 { out.append("Shift") }
+        if modifiers & UInt32(cmdKey) != 0 { out.append("Command") }
+        out.append(Self.keyName(for: keyCode))
+        return out.joined(separator: " + ")
+    }
+
     /// キーコードの表示名。特殊キーは記号、それ以外は現在の配列で翻訳した文字。
     static func keyName(for keyCode: UInt32) -> String {
         let special: [UInt32: String] = [

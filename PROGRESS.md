@@ -40,6 +40,10 @@
     给 System Events），录制交互留给用户手动验证。
   - 测试备忘：用户中文 IME 开着时，进入搜索框的字母/数字会走 IME 组词（⌫ 被 IME 吃掉），
     自动化测试要避免"先打错再删"的序列。
+  - **快捷键显示改为键帽样式**（用户反馈 "^⇧V" 太挤且看不懂符号）：`KeyCombo.parts` 输出
+    "⌃ Control" / "⇧ Shift" / "V" 等部件，`KeyComboChips` 逐个画成小键帽并用 + 连接；
+    修饰键 ≥3 个时用短名（Ctrl/Opt/Cmd）防截断，`fixedSize()` 禁止省略号。主窗口提示同时
+    给出 `spokenLabel`（"Control + Shift + V"）。用 ImageRenderer 离线渲染 PNG 核对过效果。
 
 ## 2026-09-13
 
