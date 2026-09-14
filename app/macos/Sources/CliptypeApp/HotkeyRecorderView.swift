@@ -17,9 +17,26 @@ struct HotkeyRecorderView: View {
     @State private var monitor: Any?
 
     var body: some View {
+        // 修飾キーが多い（部品 4 つ以上）ときはタイトルとキーキャップを 2 行に分けて
+        // フォームの幅からはみ出さないようにする
+        if combo.parts.count >= 4 && !recording {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                controls
+            }
+            .onDisappear { stopRecording() }
+        } else {
+            HStack {
+                Text(title)
+                Spacer()
+                controls
+            }
+            .onDisappear { stopRecording() }
+        }
+    }
+
+    private var controls: some View {
         HStack {
-            Text(title)
-            Spacer()
             Button {
                 recording ? stopRecording() : startRecording()
             } label: {
@@ -52,7 +69,6 @@ struct HotkeyRecorderView: View {
                 .font(.caption)
             }
         }
-        .onDisappear { stopRecording() }
     }
 
     private func startRecording() {
@@ -98,10 +114,12 @@ struct KeyComboChips: View {
                     Text("+")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .fixedSize()
                 }
                 KeycapView(text: part)
             }
         }
+        .fixedSize()
     }
 }
 
