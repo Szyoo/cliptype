@@ -24,7 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are no longer limited to presets — click the shortcut button and press any
   combination (at least one of ⌃⌥⇧⌘). A clear message appears if another app
   already owns it, and one click restores the default. Presets chosen in
-  earlier versions are migrated automatically.
+  earlier versions are migrated automatically. Shortcuts are displayed as
+  labeled keycaps (e.g. `⌃ Control + ⇧ Shift + V`) so the macOS symbols are
+  readable for everyone.
 - The history panel's item count is configurable (3–9, default 9); the digit
   shortcuts and the panel height follow it.
 

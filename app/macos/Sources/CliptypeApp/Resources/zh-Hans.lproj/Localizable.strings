@@ -106,5 +106,5 @@
 "Default" = "默认";
 "Type clipboard" = "键入剪贴板";
 "%@ could not be registered — another app is probably using it. Pick a different shortcut." = "%@ 无法注册——很可能已被其他应用占用，请换一个快捷键。";
-"Focus the target field, press the hotkey, and the clipboard text is typed in. Click the shortcut to record a new one (at least one of ⌃⌥⇧⌘ is required)." = "聚焦目标输入框，按下热键，剪贴板文本就会被打出。点击快捷键可重新录制（至少需要 ⌃⌥⇧⌘ 中的一个）。";
+"Focus the target field, press the hotkey, and the clipboard text is typed in. Click the shortcut to record a new one — hold at least one of Control (⌃), Option (⌥), Shift (⇧) or Command (⌘) while pressing a key." = "聚焦目标输入框，按下热键，剪贴板文本就会被打出。点击快捷键可重新录制——按住 Control (⌃)、Option (⌥)、Shift (⇧)、Command (⌘) 中至少一个，再按一个键。";
 "Items shown" = "显示条数";
