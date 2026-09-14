@@ -93,9 +93,19 @@ App 本体，用户只需授权 Cliptype.app 一处，子进程引擎自动继�
 - 设置 ✅：「剪贴板历史」分区——开关 + 隐私说明 + 件数上限 + 已保存条数 + 清空。
 - 占位 UI ✅：菜单栏子菜单列出最近 15 条（单行预览），点选放回剪贴板。
 
-**待定 / 后续**：
-1. ⬜ 最终 UI 形态：候选 (a) 热键呼出的浮动面板（类 Paste / Maccy，键盘上下选择 +
-   回车直接键入）；(b) 主窗口内的历史列表；(c) 维持菜单子菜单。建议 (a)。
+**UI 形态（2026-09-14 用户决定）**：✅ 热键呼出的**非激活浮动面板**
+[HistoryPanel.swift](../app/macos/Sources/CliptypeApp/HistoryPanel.swift) /
+[HistoryPanelView.swift](../app/macos/Sources/CliptypeApp/HistoryPanelView.swift)：
+`NSPanel(.nonactivatingPanel)`，不调用 `NSApp.activate` → 目标应用焦点不丢（实测面板
+打开时 frontmost 仍是 TextEdit）。1–9 / ↑↓ + Return 直接键入（引擎 `--stdin`）、⌘Return
+复制、打字过滤、Esc / 失焦关闭。热键 id 2（默认 ⌃⇧H）。
+位置策略 `PanelPosition`：statusItem（默认，取自进程内 `NSStatusBarWindow` 的 frame）/
+caret（AX `kAXBoundsForRangeParameterizedAttribute`，取不到回退 statusItem）/ center /
+custom（`isMovableByWindowBackground`，`didMoveNotification` 保存原点，重置按钮）。
+菜单栏子菜单保留为鼠标备用入口。
+
+**后续**：
+1. ⬜ 面板内右键/滑动删除单条、置顶。
 2. ⬜ 历史条目的直接键入热键（例如 ⌃⇧1…9 键入第 N 条）。
 3. ⬜ 搜索 / 置顶 / 排除特定应用（如密码管理器、终端）。
 4. ⬜ Windows 侧（Rust tray）对齐：可复用 history.json 格式。

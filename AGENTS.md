@@ -51,6 +51,12 @@
   历史基础层（模型 + 0.5s changeCount 轮询 + JSON 持久化 + 操作 API）。**默认关闭**；
   跳过 concealed/transient 类型；保存于 `~/Library/Application Support/Cliptype/history.json`
   （0700/0600）。UI 形态待定，当前只有菜单子菜单占位。直接键入走引擎 `--stdin`。
+- [app/macos/.../HistoryPanel.swift](app/macos/Sources/CliptypeApp/HistoryPanel.swift) +
+  [HistoryPanelView.swift](app/macos/Sources/CliptypeApp/HistoryPanelView.swift) — 历史面板：
+  **非激活 NSPanel**（绝不 `NSApp.activate`，否则目标输入框失焦、字打进面板）；键盘由
+  `NSEvent` 本地监视器先处理（Esc/Return/↑↓/1–9），其余流给搜索框；选中后先 `orderOut`
+  再延迟 120ms 走引擎 `--stdin`。定位 `PanelPosition`（statusItem 默认 / caret / center /
+  custom）；状态栏图标位置来自进程内 `NSStatusBarWindow`。面板热键 = HotkeyManager id 2。
 - [scripts/bundle-macos.sh](scripts/bundle-macos.sh) — 组装 dist/Cliptype.app
   （LSUIElement、ad-hoc 签名；TCC 只需授权 App 一处，子进程引擎自动继承）。
 

@@ -2,6 +2,28 @@
 
 > 最新在上；绝对日期；记录实质进展、技术决策、卡点。规则见 [AGENTS.md](AGENTS.md)。
 
+## 2026-09-14
+
+- **剪贴板历史面板完成（Phase 6 UI 形态定稿）**。用户在三个思路（固定位置 / 跟随光标 /
+  贴状态栏图标）中定为：**默认贴菜单栏图标下方 + 可切换 + 自定义拖动位置**。
+  - 实现：[HistoryPanel.swift](app/macos/Sources/CliptypeApp/HistoryPanel.swift)（控制器 +
+    非激活 `NSPanel` + 定位 + AX 光标读取）、[HistoryPanelView.swift](app/macos/Sources/CliptypeApp/HistoryPanelView.swift)
+    （SwiftUI 列表/搜索/快捷键提示）。HotkeyManager 重写为多热键（id 1 键入、id 2 面板，
+    默认 ⌃⇧H，可选 ⌃⌥H / ⌘⇧H）。键盘由 `NSEvent` 本地监视器先截：Esc / Return（⌘Return
+    仅复制）/ ↑↓ / 1–9（搜索框为空时），其余流入搜索框过滤。选中 → `orderOut` → 120ms →
+    引擎 `--stdin` 键入。失焦（点其他地方）自动关闭。
+  - 定位 `PanelPosition`：statusItem（进程内 `NSStatusBarWindow` frame，水平居中，找不到时
+    屏幕顶部居中）/ caret（`kAXBoundsForRangeParameterizedAttribute`，AX 左上原点→AppKit
+    翻转，下方放不下则放上方；取不到回退 statusItem）/ center / custom
+    （`isMovableByWindowBackground` + `didMoveNotification` 存原点；show() 后 0.5s 内的
+    程序性移动不记录——否则默认位置会被误存为自定义值，实测踩到后修复）。
+  - 设置窗口新增「历史面板」分区（热键、位置四选 + 说明 + 重置位置）；三语文案。
+  - 真机验证（TextEdit）：面板中心 x 与状态栏图标中心一致（1662）；面板打开时 frontmost
+    仍是 TextEdit（**焦点未被抢**）；按 2 → 键入第 2 条；输入 gam + 回车 → 键入 gamma；
+    Esc 关闭；⌘回车只复制不键入；自定义拖到 (300,400) 保存并原位重开；光标模式面板落在
+    TextEdit 光标行下方。
+  - 未发布：等用户试用后决定是否发 v0.1.4。
+
 ## 2026-09-13
 
 - **证书签名：更新不再需要重新授权**（用户目标"用户那里也不要重新授权"，选择自签证书

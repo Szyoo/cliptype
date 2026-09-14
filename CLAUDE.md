@@ -23,6 +23,8 @@ macOS 为主要开发平台。计划见 [docs/implementation-plan.md](docs/imple
 - [src/config.rs](src/config.rs) — 托盘设置持久化（std 手写解析，无新依赖）
 - [app/macos/](app/macos/) — SwiftUI 菜单栏应用（MenuBarExtra + Settings + Carbon 热键，
   调用同捆 Rust 引擎；键入实现只在 Rust 侧维护）
+- [app/macos/.../HistoryPanel.swift](app/macos/Sources/CliptypeApp/HistoryPanel.swift) — 历史面板：非激活
+  NSPanel（不抢焦点）、1–9/↑↓/Return 直接键入（`--stdin`）、位置 statusItem 默认 / caret / center / custom
 - [app/macos/.../Updater.swift](app/macos/Sources/CliptypeApp/Updater.swift) — 应用内更新（GitHub Releases
   latest → 下载 universal zip → sha256 校验 → bash 助手替换 .app 并重启；资产名后缀与 release.yml 耦合）
 - [scripts/bundle-macos.sh](scripts/bundle-macos.sh) — 组装 dist/Cliptype.app；用
