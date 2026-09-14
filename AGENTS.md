@@ -57,6 +57,13 @@
   `NSEvent` 本地监视器先处理（Esc/Return/↑↓/1–9），其余流给搜索框；选中后先 `orderOut`
   再延迟 120ms 走引擎 `--stdin`。定位 `PanelPosition`（statusItem 默认 / caret / center /
   custom）；状态栏图标位置来自进程内 `NSStatusBarWindow`。面板热键 = HotkeyManager id 2。
+  显示条数 `panelMaxItems`（3–9）决定数字快捷键范围与面板高度。
+- [app/macos/.../KeyCombo.swift](app/macos/Sources/CliptypeApp/KeyCombo.swift) +
+  [HotkeyRecorderView.swift](app/macos/Sources/CliptypeApp/HotkeyRecorderView.swift) — 热键**自由录制**
+  （用户反馈预设与其他软件冲突）。`KeyCombo` = Carbon keyCode + 修饰键，存 UserDefaults
+  `hotkeyCombo` / `panelHotkeyCombo`（"keyCode:mods"），旧 `*PresetId` 自动迁移；标签用
+  UCKeyTranslate 按当前配列取键名。录制期间 `suspendHotkeys` 解除全局热键（Carbon 会先截走
+  事件）；注册失败（被占用）通过 `hotkeyError` 显示。
 - [scripts/bundle-macos.sh](scripts/bundle-macos.sh) — 组装 dist/Cliptype.app
   （LSUIElement、ad-hoc 签名；TCC 只需授权 App 一处，子进程引擎自动继承）。
 

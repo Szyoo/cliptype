@@ -73,7 +73,7 @@ struct MenuContent: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        Text("cliptype \(Updater.currentVersion) — \(state.hotkeyPreset.label)")
+        Text("cliptype \(Updater.currentVersion) — \(state.hotkeyCombo.label)")
 
         if !state.axTrusted {
             // 設定画面に詳しい手順（古いレコードの削除）があるのでそちらへ誘導する

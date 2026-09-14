@@ -11,13 +11,18 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section {
-                Picker(L("Hotkey"), selection: hotkeyBinding) {
-                    ForEach(AppState.hotkeyPresets) { preset in
-                        Text(preset.label).tag(preset.id)
-                    }
+                HotkeyRecorderView(
+                    title: L("Type clipboard"),
+                    combo: Binding(get: { state.hotkeyCombo }, set: { state.hotkeyCombo = $0 }),
+                    defaultCombo: .defaultType,
+                    onRecordingChanged: { state.suspendHotkeys($0) }
+                )
+                if let err = state.hotkeyError {
+                    Label(err, systemImage: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
                 }
-                .pickerStyle(.segmented)
-                Text(L("Focus the target field, press the hotkey, and the clipboard text is typed in."))
+                Text(L("Focus the target field, press the hotkey, and the clipboard text is typed in. Click the shortcut to record a new one (at least one of ⌃⌥⇧⌘ is required)."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } header: {
@@ -87,12 +92,22 @@ struct SettingsView: View {
 
             if history.isEnabled {
                 Section {
-                    Picker(L("Panel hotkey"), selection: panelHotkeyBinding) {
-                        ForEach(AppState.panelHotkeyPresets) { preset in
-                            Text(preset.label).tag(preset.id)
+                    HotkeyRecorderView(
+                        title: L("Panel hotkey"),
+                        combo: Binding(get: { state.panelHotkeyCombo }, set: { state.panelHotkeyCombo = $0 }),
+                        defaultCombo: .defaultPanel,
+                        onRecordingChanged: { state.suspendHotkeys($0) }
+                    )
+                    if let err = state.panelHotkeyError {
+                        Label(err, systemImage: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                    Picker(L("Items shown"), selection: panelMaxItemsBinding) {
+                        ForEach(3...9, id: \.self) { n in
+                            Text(L("%d items", n)).tag(n)
                         }
                     }
-                    .pickerStyle(.segmented)
                     Picker(L("Panel position"), selection: panelPositionBinding) {
                         Text(L("Below the menu bar icon")).tag(PanelPosition.statusItem)
                         Text(L("Near the text cursor")).tag(PanelPosition.caret)
@@ -182,11 +197,12 @@ struct SettingsView: View {
     }
 
     @State private var panelPosition: PanelPosition = PanelPosition.current
+    @State private var panelMaxItems: Int = HistoryPanelModel.storedMaxItems
 
-    private var panelHotkeyBinding: Binding<String> {
+    private var panelMaxItemsBinding: Binding<Int> {
         Binding(
-            get: { state.panelHotkeySelection },
-            set: { state.panelHotkeySelection = $0 }
+            get: { panelMaxItems },
+            set: { panelMaxItems = $0; HistoryPanelModel.storedMaxItems = $0 }
         )
     }
 
@@ -197,10 +213,4 @@ struct SettingsView: View {
         )
     }
 
-    private var hotkeyBinding: Binding<String> {
-        Binding(
-            get: { state.hotkeySelection },
-            set: { state.hotkeySelection = $0 }
-        )
-    }
 }

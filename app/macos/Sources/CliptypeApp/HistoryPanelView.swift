@@ -65,7 +65,7 @@ struct HistoryPanelView: View {
             HStack(spacing: 14) {
                 hint("↩", L("type"))
                 hint("⌘↩", L("copy"))
-                hint("1–9", L("pick"))
+                hint("1–\(model.maxItems)", L("pick"))
                 hint("esc", L("close"))
                 Spacer()
                 if PanelPosition.current == .custom {
@@ -77,7 +77,7 @@ struct HistoryPanelView: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
         }
-        .frame(width: HistoryPanelController.panelWidth, height: HistoryPanelController.panelHeight)
+        .frame(width: HistoryPanelController.panelWidth, height: HistoryPanelController.panelHeight(items: model.maxItems))
         .background(.regularMaterial)
         .onAppear { searchFocused = true }
     }
@@ -85,7 +85,7 @@ struct HistoryPanelView: View {
     private func row(index: Int, entry: ClipEntry) -> some View {
         let selected = index == model.selectedIndex
         return HStack(alignment: .top, spacing: 10) {
-            Text(index < 9 ? "\(index + 1)" : "")
+            Text(index < model.maxItems ? "\(index + 1)" : "")
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(selected ? .white.opacity(0.9) : .secondary)
                 .frame(width: 14, alignment: .trailing)

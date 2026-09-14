@@ -23,6 +23,23 @@
     Esc 关闭；⌘回车只复制不键入；自定义拖到 (300,400) 保存并原位重开；光标模式面板落在
     TextEdit 光标行下方。
   - 未发布：等用户试用后决定是否发 v0.1.4。
+- **快捷键自由录制 + 面板显示条数 3–9**（用户反馈：预设与本机其他软件冲突）。
+  - [KeyCombo.swift](app/macos/Sources/CliptypeApp/KeyCombo.swift)：keyCode + Carbon 修饰键，
+    存 `hotkeyCombo` / `panelHotkeyCombo`（"keyCode:mods"），旧 `hotkeyPresetId` /
+    `panelHotkeyPresetId` 自动迁移（实测：用户此前选的 ⌃⌥H 面板热键被正确沿用）；标签按
+    当前键盘配列用 UCKeyTranslate 取键名，修饰键顺序遵循 macOS 惯例 ⌃⌥⇧⌘（⌘⇧B 显示为
+    ⇧⌘B）。`KeyCombo(event:)` 拒绝无修饰键和修饰键单独按下。
+  - [HotkeyRecorderView.swift](app/macos/Sources/CliptypeApp/HotkeyRecorderView.swift)：点击
+    进入录制 → 本地 keyDown 监视器取第一个组合 → Esc 取消 → 「默认」恢复。录制期间
+    `AppState.suspendHotkeys` 解除全局热键（否则 Carbon 先截走、无法录同一组合）。注册
+    失败（`RegisterEventHotKey` 被占用）→ `hotkeyError` 在设置里橙色提示。
+  - 面板 `panelMaxItems`（3–9，默认 9）：`filtered` 取前 N、数字键 1–N、高度
+    44 + N×48 + 50（实测 3 条 → 440×257，9 条 → 440×545）。
+  - 验证：KeyCombo 头less 单测 10 项通过（含 NSEvent 转换）；旧预设迁移正确；3 条模式
+    按 3 键入第 3 条、按 4 被忽略。录制按钮的 AX 自动化点击未成功（SwiftUI Form 行未暴露
+    给 System Events），录制交互留给用户手动验证。
+  - 测试备忘：用户中文 IME 开着时，进入搜索框的字母/数字会走 IME 组词（⌫ 被 IME 吃掉），
+    自动化测试要避免"先打错再删"的序列。
 
 ## 2026-09-13
 

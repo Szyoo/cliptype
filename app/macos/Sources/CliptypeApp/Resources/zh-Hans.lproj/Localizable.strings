@@ -99,3 +99,12 @@
 "Reset position" = "重置位置";
 "Press the hotkey, pick an item with 1–9 or ↑↓ and Return, and it is typed into the focused field. ⌘Return copies it instead." = "按下热键，用 1–9 或 ↑↓ 加回车选择条目，即可键入到当前聚焦的输入框；⌘回车则只复制到剪贴板。";
 "History panel" = "历史面板";
+
+/* ホットキー録音 */
+"Press keys…" = "请按下组合键…";
+"Click, then press the new shortcut. Esc cancels." = "点击后按下新的快捷键，Esc 取消。";
+"Default" = "默认";
+"Type clipboard" = "键入剪贴板";
+"%@ could not be registered — another app is probably using it. Pick a different shortcut." = "%@ 无法注册——很可能已被其他应用占用，请换一个快捷键。";
+"Focus the target field, press the hotkey, and the clipboard text is typed in. Click the shortcut to record a new one (at least one of ⌃⌥⇧⌘ is required)." = "聚焦目标输入框，按下热键，剪贴板文本就会被打出。点击快捷键可重新录制（至少需要 ⌃⌥⇧⌘ 中的一个）。";
+"Items shown" = "显示条数";
