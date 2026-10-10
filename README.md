@@ -4,231 +4,121 @@
 
 **简体中文** | [English](README.en.md)
 
-把剪贴板内容以模拟键盘输入的方式"打"出来。
+`cliptype` 读取剪贴板中的文本，以模拟键盘输入的方式逐字符"打"到当前焦点位置，
+用于 <kbd>Ctrl/Cmd</kbd>+<kbd>V</kbd> 失效的场景：远程桌面、VNC、虚拟机、
+部分密码框、自助终端软件等。支持 **macOS**（原生应用 + CLI）、**Windows**
+（托盘 + CLI）、**Linux**（CLI）；目前主要在 macOS 上验证。
 
-`cliptype` 读取剪贴板中的文本，然后像真人打字一样逐字符输入到当前焦点位置。
-适用于禁止粘贴的输入框——远程桌面、虚拟机、部分密码框、自助终端软件等
-<kbd>Ctrl/Cmd</kbd>+<kbd>V</kbd> 失效的场景。
-
-跨平台：**macOS**（原生应用 + CLI）、**Windows**（托盘 + CLI）、**Linux**（CLI）。
-
-> 状态：macOS 上已实现并验证；Windows / Linux 的运行时验证进行中。
-> 见[路线图](#路线图)。
+- 两种发送方式：Unicode 文本事件（任意字符、不受输入法干扰）与真实键码
+  （VNC / 远程控制台 / 虚拟机）
+- 单次倒计时输入、常驻热键、状态栏 / 托盘三种运行模式
+- macOS 原生应用：菜单栏常驻、热键自由录制、可选的本地剪贴板历史面板、应用内自动更新，
+  界面中 / 英 / 日三语
+- 剪贴板内容只在本机使用，不写入日志或错误信息；CLI 不联网
 
 ## 安装
 
-所有安装包都在 [GitHub Releases](https://github.com/Szyoo/cliptype/releases) 页面。
-macOS 用户有两种使用方式，**任选其一**：
+安装包在 [GitHub Releases](https://github.com/Szyoo/cliptype/releases)。
 
-### macOS · 方式一：安装应用（推荐）
-
-图形界面 + 常驻菜单栏，适合日常使用。
-
-1. 下载 `cliptype-vX.Y.Z-macos-app-universal.zip`（同时支持 Apple Silicon 和 Intel）。
-2. 解压，把 **Cliptype.app** 拖入「应用程序」文件夹。
-3. 应用暂未经 Apple 公证，首次运行前先清除隔离标记（终端执行）：
-
-   ```sh
-   xattr -d com.apple.quarantine /Applications/Cliptype.app
-   ```
-
-4. 打开 Cliptype。首次启动会弹出授权引导：到**系统设置 → 隐私与安全性 →
-   辅助功能**，给 **Cliptype** 打开开关（只需授权这一个条目，内置输入引擎
-   自动继承）。
-5. 复制一段文本 → 聚焦目标输入框 → 按 <kbd>⌃⇧V</kbd>。
-   热键（点击快捷键按钮后按下任意组合键即可录制）与打字速度可在主窗口 /
-   菜单栏图标 → 设置中修改。
-
-之后的版本**应用内自动更新**：启动时和每 24 小时检查一次 GitHub Releases
-（可在设置中关闭），有新版本会弹窗显示更新说明，确认后自动下载、校验 SHA-256、
-替换并重新启动。也可以在菜单栏图标 → 「检查更新…」手动检查。0.1.3 起应用使用
-稳定的证书签名，**更新后辅助功能权限保持有效**，不需要重新授权（从 0.1.2 及更早
-版本升级时需要重新授权一次，见[权限说明](#权限说明)）。
-
-**剪贴板历史（可选）**：在设置中开启后，按 <kbd>⌃⇧H</kbd> 弹出历史面板，
-按 1–9（显示条数 3–9 可调）或 ↑↓ + 回车把选中的条目直接键入当前输入框，⌘回车则复制；面板默认贴在
-菜单栏图标下方，也可设为跟随光标、屏幕中央或自己拖到任意位置。历史只保存在本机，
-默认关闭。
-
-### macOS · 方式二：终端 CLI
-
-无图形界面，适合开发者和脚本场景。
-
-1. 下载 `cliptype-vX.Y.Z-aarch64-apple-darwin.tar.gz`（Apple Silicon）
-   或 `x86_64-apple-darwin`（Intel），解压得到 `cliptype`。
-2. 清除隔离标记：`xattr -d com.apple.quarantine ./cliptype`
-3. 授权对象是**运行它的终端 App**：到系统设置 → 辅助功能，加入并打开
-   Terminal / iTerm 等你实际使用的终端，然后**完全退出并重开终端**。
-4. 见下方[CLI 用法](#cli-用法)。
-
-> 两种方式的授权互相独立：应用方式授权 Cliptype 本身；CLI 方式授权终端。
-> 详见下方[权限说明](#权限说明)。
-
-### Windows
-
-下载 `cliptype-vX.Y.Z-x86_64-pc-windows-msvc.zip`，解压得到 `cliptype.exe`，
-无需额外配置。`cliptype.exe --tray` 启动托盘常驻模式。
-
-### Linux
-
-下载 `cliptype-vX.Y.Z-x86_64-unknown-linux-gnu.tar.gz` 解压即用（X11；
-Wayland 取决于合成器，XWayland 一般可用）。运行时需要 `libxdo`：
-
-```sh
-sudo apt-get install -y libxdo3   # Debian/Ubuntu 运行时
-```
-
-### 从源码构建
-
-需要 [Rust 工具链](https://rustup.rs/)；macOS 应用另需 Xcode 命令行工具。
-
-```sh
-git clone https://github.com/Szyoo/cliptype
-cd cliptype
-cargo build --release            # CLI，二进制在 target/release/cliptype
-scripts/bundle-macos.sh          # macOS 应用，产物在 dist/Cliptype.app
-```
-
-Linux 构建依赖：`libxdo-dev` 及 xcb 系列开发库（见 CI 配置）。
-
-## 权限说明
-
-### macOS 需要「辅助功能」权限
-
-模拟键盘输入在 macOS 上属于受保护操作，必须获得**辅助功能**（Accessibility）
-授权：*系统设置 → 隐私与安全性 → 辅助功能*。
-
-**授权对象取决于你的使用方式**——macOS 把权限授予"发起操作的那个应用"：
-
-| 使用方式 | 需要授权的对象 | 授权后 |
+| 平台 | 文件 | 说明 |
 | --- | --- | --- |
-| 安装 Cliptype.app | **Cliptype** | 重启 Cliptype |
-| 终端运行 `cliptype` | **你的终端 App**（Terminal / iTerm 等） | **完全退出**并重开终端 |
-| `cargo run` / IDE 内运行 | 同上，运行它的终端或 IDE | 同上 |
+| macOS 应用 | `cliptype-vX.Y.Z-macos-app-universal.zip` | 解压后把 **Cliptype.app** 拖入「应用程序」 |
+| macOS CLI | `cliptype-vX.Y.Z-aarch64-apple-darwin.tar.gz` / `x86_64-apple-darwin` | Apple Silicon / Intel |
+| Windows | `cliptype-vX.Y.Z-x86_64-pc-windows-msvc.zip` | 解压即用 |
+| Linux | `cliptype-vX.Y.Z-x86_64-unknown-linux-gnu.tar.gz` | X11；运行时需要 `libxdo`（`sudo apt-get install -y libxdo3`） |
 
-装应用的方式只需授权一个条目——内置的输入引擎作为子进程继承 Cliptype 的权限，
-不需要单独授权。
-
-**没有权限会怎样**：macOS 会**静默丢弃**所有模拟按键——程序看起来运行成功，
-但目标窗口里什么都没出现。cliptype 会在输入前主动检测权限并报错退出，
-而不是假装成功。
-
-### 授权了却还是不生效？
-
-- **刚打开开关就试**：已在运行的进程不会获得新权限。CLI 方式必须**完全退出终端
-  App**（⌘Q，不是关窗口）再重开；应用方式重启 Cliptype。
-- **从 0.1.2 或更早版本升级到 0.1.3+ 后，开关开着却不起作用**：0.1.3 起应用改用
-  稳定的证书签名，此后**更新不再需要重新授权**；但从 ad-hoc 签名的旧版本升上来时，
-  签名要求变了一次，macOS 仍把旧授权绑定在旧签名上——列表里那条 Cliptype 开关看似
-  开着，新版本却匹配不上；**把开关关掉再打开也没用**。这一次需要**重建这条记录**：
-
-  1. 系统设置 → 隐私与安全性 → 辅助功能，选中 **Cliptype** 那一行
-  2. 点 **−** 删除它
-  3. 点 **+** 重新添加 Cliptype（或重新启动 Cliptype，按它弹出的引导操作）
-
-  应用内更新完成后，如果 12 秒内仍未检测到权限，Cliptype 会自动弹出这套步骤，
-  并提供「帮我删除条目」按钮（等价于 `tccutil reset Accessibility io.github.szyoo.cliptype`）。
-  0.1.3 之后的版本之间更新不会再出现这个问题。
-- **打开时的"无法验证开发者"提示**：应用用的是项目自己的证书，没有经过 Apple 公证，
-  所以 Gatekeeper 仍会提示（这就是安装教程里要 `xattr -d com.apple.quarantine` 的原因）。
-  这与权限无关；等接入 Apple Developer 证书并公证后才会消失。
-- **为什么有的权限能直接点「允许」，辅助功能却要手动进设置？** 这是 macOS 的设计：
-  辅助功能、输入监控、屏幕录制、完全磁盘访问属于高危权限，系统故意不提供一键允许，
-  应用只能弹出带「打开系统设置」按钮的引导框；相机、麦克风、文件夹访问等普通权限
-  才有「允许 / 不允许」按钮。任何应用都无法绕过或自定义这一点。
-
-### 更新时的文件夹访问询问
-
-如果把 Cliptype.app 放在**文稿、桌面、下载**这类受保护文件夹里，应用内更新替换
-自身时 macOS 会额外弹出"允许访问该文件夹"的询问，**不点允许更新就会卡住**。
-把 Cliptype 放在**应用程序**文件夹可以完全避免这一步。
-
-### Windows / Linux
-
-- **Windows**：无需任何权限配置。
-- **Linux**：不需要系统授权，但 X11 下运行时依赖 `libxdo`
-  （Debian/Ubuntu：`sudo apt-get install -y libxdo3`）。Wayland 的支持取决于
-  合成器，XWayland 一般可用。
-
-### 隐私
-
-- 剪贴板内容**只在本机**用于模拟键盘输入，不会上传到任何地方。
-- 剪贴板内容**绝不会**出现在日志、错误信息或终端输出里（剪贴板里可能是密码），
-  唯一的例外是你显式指定的 `--dry-run`。
-- 程序唯一的网络访问是 macOS 应用的**检查更新**（访问 GitHub Releases），
-  可在设置中关闭。CLI 完全不联网。
-
-## CLI 用法
-
-```
-cliptype [OPTIONS]
-
-Options:
-  -d, --delay <MS>      开始输入前的延迟（毫秒）        [默认: 2000]
-  -i, --interval <MS>   每个按键之间的间隔（毫秒）      [默认: 0]
-  -s, --speed <SPEED>   打字速度预设  [可选值: fast, normal, slow]
-  -m, --mode <MODE>     发送方式      [可选值: unicode, keycode]  [默认: unicode]
-      --dry-run         只打印将要输入的内容，不实际输入
-  -h, --help            显示帮助
-  -V, --version         显示版本
-```
-
-`--speed` 是 `--interval` 的友好替代（fast = 无间隔，normal = 20 毫秒，
-slow = 50 毫秒——适合高速输入会吞字的应用）。
-
-`--mode` 决定按键的发送方式：
-
-- `unicode`（默认）：以 Unicode 文本事件发送，任何字符都能打，不受输入法干扰，
-  适合本机应用。
-- `keycode`：按当前键盘布局逐字符按下**真实键码**。**VNC、远程控制台、虚拟机
-  窗口必须用这个模式**——它们只转发物理键码、忽略附加的 Unicode 文本，否则每个
-  字符都会变成 `a`。只能输入键盘布局上存在的字符（中日文等会回退为 Unicode 并
-  给出警告）；发送期间会临时切到英文输入源并在结束后恢复。
-  在 macOS 应用 / 托盘菜单里对应"远程控制台模式（VNC / 虚拟机）"开关。
+每个文件都附带 `.sha256` 校验文件。macOS 的应用和 CLI 都未经 Apple 公证，首次运行前
+先清除隔离标记：
 
 ```sh
-# 复制一段文字，然后：
-cliptype --delay 3000
-# 3 秒内切换到目标窗口，剪贴板文本会被自动打出。
+xattr -d com.apple.quarantine /Applications/Cliptype.app   # 应用
+xattr -d com.apple.quarantine ./cliptype                   # CLI
 ```
 
-### 常驻热键模式（`--features hotkey`）
+预编译的 CLI 在 macOS / Windows 上含热键与托盘模式，Linux 上含热键模式。
 
-`cliptype --hotkey` 常驻运行，每次按热键就把当前剪贴板打出来——无需倒计时：
+**从源码构建**（需要 [Rust](https://rustup.rs/)；macOS 应用另需 Xcode 命令行工具；
+Linux 需要 `libxdo-dev` 与 xcb 系列开发库）：
 
 ```sh
-cliptype --hotkey                    # 默认组合键: ctrl+shift+v
-cliptype --hotkey "alt+F9"           # 自定义组合键
-cliptype --hotkey --interval 20      # 每次触发按逐字符模式输入
+git clone https://github.com/Szyoo/cliptype && cd cliptype
+cargo build --release                    # 仅单次模式
+cargo build --release --features tray    # 含热键 + 托盘（macOS / Windows）
+cargo build --release --features hotkey  # 含热键（任意平台）
+scripts/bundle-macos.sh                  # macOS 应用 → dist/Cliptype.app
 ```
 
-会等修饰键松开后再输入，组合键不污染输出。终端 <kbd>Ctrl</kbd>+<kbd>C</kbd> 退出。
+## 运行
 
-### 状态栏 / 托盘模式（`--features tray`，macOS 和 Windows）
+### 权限
 
-`cliptype --tray` 在热键模式之上增加状态栏图标：显示当前热键、暂停/恢复、
-切换速度（持久化到 `~/.config/cliptype/config.toml`，Windows 为
-`%APPDATA%\cliptype\`）。macOS 日常使用建议直接用原生应用（方式一）。
+macOS 上模拟键盘输入需要**辅助功能**权限（系统设置 → 隐私与安全性 → 辅助功能），
+授予对象是发起输入的那个应用：
 
-## 路线图
+| 运行方式 | 授权对象 | 授权后 |
+| --- | --- | --- |
+| Cliptype.app | **Cliptype**（内置引擎自动继承） | 重启 Cliptype |
+| 终端运行 `cliptype` | 你使用的终端 App（Terminal / iTerm 等） | ⌘Q 完全退出终端后重开 |
 
-- [x] 剪贴板读取与键盘输入发送（Unicode / 换行 / Tab，macOS 已验证）
-- [ ] Windows / Linux 运行时验证
-- [x] 常驻热键模式（`--features hotkey`）
-- [x] 状态栏 / 托盘 UI（`--features tray`，macOS 和 Windows）
-- [x] macOS 原生应用（主窗口 + 菜单栏，界面中/英/日三语）
-- [x] 预编译发布：CLI 三平台 + macOS 应用（universal）
-- [x] 稳定证书签名（更新不再需要重新授权）
-- [ ] Apple 公证（消除 Gatekeeper 提示，需 Apple Developer 证书）
-- [ ] Windows 原生界面
+未授权时 macOS 会静默丢弃按键；cliptype 会在输入前检测并报错退出。
+从 0.1.2 及更早版本升级到 0.1.3+ 后若开关开着却不生效，需在辅助功能列表中选中
+Cliptype 点 **−** 删除，再点 **+** 重新添加（应用会弹出这套引导）。
+Windows 与 Linux 无需授权。
 
-## 更新日志
+### macOS 应用
 
-见 [CHANGELOG.md](CHANGELOG.md)（[English](CHANGELOG.en.md)）。
+1. 打开 Cliptype，按首次启动的引导授予辅助功能权限。
+2. 复制文本 → 聚焦目标输入框 → 按 <kbd>⌃⇧V</kbd>。
+3. 剪贴板历史（设置中开启，默认关闭）：按 <kbd>⌃⇧H</kbd> 弹出面板，按 1–9 或 ↑↓ + 回车
+   直接键入选中条目，⌘回车复制。历史只保存在本机。
 
-## 参与贡献
+热键、打字速度、远程控制台模式（VNC / 虚拟机）、历史面板位置与条数、自动检查更新
+都在主窗口或菜单栏图标 → 设置中修改。
 
-欢迎 Issue 和 Pull Request。提交前请运行 `cargo fmt` 和 `cargo clippy`。
+### CLI
+
+```sh
+cliptype --delay 3000            # 3 秒内切到目标窗口，剪贴板文本被打出
+cliptype --mode keycode          # VNC / 远程控制台 / 虚拟机
+cliptype --hotkey                # 常驻，每按一次 ctrl+shift+v 输入一次
+cliptype --hotkey "alt+F9"       # 自定义组合键
+cliptype --tray                  # 状态栏 / 托盘常驻（macOS / Windows）
+echo -n "text" | cliptype --stdin
+```
+
+常驻模式会等修饰键松开后再输入；<kbd>Ctrl</kbd>+<kbd>C</kbd> 退出。
+
+## 接口说明
+
+### 命令行参数
+
+| 参数 | 说明 | 默认 |
+| --- | --- | --- |
+| `-d, --delay <MS>` | 开始输入前的延迟（毫秒），用于切换到目标窗口；常驻模式下忽略 | `2000` |
+| `-i, --interval <MS>` | 按键间隔（毫秒），0 为最快 | `0` |
+| `-s, --speed <SPEED>` | 速度预设：`fast`（0 ms）/ `normal`（20 ms）/ `slow`（50 ms）；与 `--interval` 互斥 | — |
+| `-m, --mode <MODE>` | `unicode`：Unicode 文本事件；`keycode`：按当前键盘布局发送真实键码（布局上没有的字符回退为 Unicode 并警告，发送期间临时切到英文输入源） | `unicode` |
+| `--dry-run` | 只打印将要输入的内容，不实际输入 | — |
+| `--stdin` | 从标准输入读取文本，代替剪贴板 | — |
+| `--check-permission` | 不输入，仅以退出码返回是否允许模拟输入（0 = 允许，1 = 不允许） | — |
+| `--hotkey [COMBO]` | 常驻热键模式（需 `hotkey` feature），如 `ctrl+shift+v`、`alt+F9` | `ctrl+shift+v` |
+| `--tray` | 状态栏 / 托盘模式（需 `tray` feature，仅 macOS / Windows）；可与 `--hotkey` 组合指定热键 | — |
+| `-h, --help` / `-V, --version` | 帮助 / 版本 | — |
+
+剪贴板为空或非文本时提示后正常退出；出错时退出码非 0。
+
+### 配置文件
+
+托盘模式的设置保存在 `~/.config/cliptype/config.toml`（设置了 `XDG_CONFIG_HOME` 时
+为 `$XDG_CONFIG_HOME/cliptype/`，Windows 为 `%APPDATA%\cliptype\`），一行一项：
+
+```toml
+interval_ms = 20
+keycode_mode = false
+```
+
+macOS 应用的设置保存在应用自身的 UserDefaults 中；剪贴板历史保存在
+`~/Library/Application Support/Cliptype/history.json`（权限 0600）。
 
 ## 许可证
 

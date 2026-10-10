@@ -95,6 +95,13 @@ echo "APPL????" > "$APP_DIR/Contents/PkgInfo"
 #   許可がアップデート後も維持される。ログインキーチェーンは触らないので GUI の
 #   許可ダイアログも出ない。ローカルも CI も同じ経路。
 # - 無ければ ad-hoc 署名（毎ビルド署名が変わり、許可は失効する）。
+# - 証明書の場所: 既定は ~/.config/cliptype-signing/cliptype-signing.p12（パスワードは
+#   同じディレクトリの p12-password.txt）。環境変数 CODESIGN_P12 / CODESIGN_P12_PASSWORD /
+#   CODESIGN_ID で上書きできる。CI では Secrets MACOS_SIGNING_P12_BASE64 /
+#   MACOS_SIGNING_P12_PASSWORD から渡す（無ければ ad-hoc に戻る）。
+# - p12 は旧式アルゴリズムで書き出すこと（openssl pkcs12 -export -certpbe PBE-SHA1-3DES
+#   -keypbe PBE-SHA1-3DES -macalg sha1）。OpenSSL 3 既定の AES/PBKDF2 だと
+#   security import が "MAC verification failed" になる。
 P12="${CODESIGN_P12:-$HOME/.config/cliptype-signing/cliptype-signing.p12}"
 P12_PASSWORD="${CODESIGN_P12_PASSWORD:-}"
 if [ -z "$P12_PASSWORD" ] && [ -f "$(dirname "$P12")/p12-password.txt" ]; then
@@ -132,7 +139,7 @@ else
     codesign --force --deep --sign - "$APP_DIR"
     echo "note: ad-hoc signed (no certificate at $P12). Every rebuild changes the"
     echo "      signature, so macOS treats it as a new app and the Accessibility grant"
-    echo "      stops applying. See the project docs (signing) for the certificate setup."
+    echo "      stops applying. See the signing notes in scripts/bundle-macos.sh."
 fi
 
 echo "==> done: $APP_DIR"
